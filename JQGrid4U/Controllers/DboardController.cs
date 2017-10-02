@@ -19,7 +19,6 @@ namespace JQGrid4U.Controllers
 			}
 			else
 			{
-
 				List<DashBoard> objList = DashBoardBL.DashBoards.ToList();
 
 				return View(objList);
