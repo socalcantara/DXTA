@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	@*<base href='@Url.Content("~/")'>*@
+    <title>DXTA Monitoring - @ViewBag.Title</title>
+
+	<link href="~/Scripts/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="~/Scripts/bootstrap-3.3.7/css/bootstrap-theme.css" rel="stylesheet" />
+	<link href="~/Scripts/bootstrap-3.3.7/css/bootstrap.css" rel="stylesheet" />
+
+	<link href="~/css/UserDefine.css" rel="stylesheet" />
+	<script src="~/Scripts/jquery-2.1.4.min.js"></script>
+	<script src="~/Scripts/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+	<script src="~/Scripts/jquery.jqGrid.min.js"></script>
+
+</head>
+<body>
+	<nav class="navbar navbar-default navbar-static-top example6">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar6">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand text-hide navbar-left" href="~/Dboard">
+					Brand Text
+					@*3.37 bootstrap-theme images/Tech Mavin-Icons/Gray Background/Tech Mavin 2 PNG.png*@
+				</a>
+			</div>
+			<div id="navbar6" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="~/Dboard">Home</a></li>
+					@*<li><a href="#">About</a></li>
+					<li><a href="#">Contact</a></li>*@
+					@*<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Reports<span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="~/Graphdata">Graphs</a></li>
+							<li><a href="#">Another action</a></li>
+							<li><a href="#">Something else here</a></li>
+							<li class="divider"></li>
+							<li class="dropdown-header">Nav header</li>
+							<li><a href="#">Separated link</a></li>
+							<li><a href="#">One more separated link</a></li>
+						</ul>
+					</li>*@
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Utility <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="~/UserManagement">Users List</a></li>
+							
+							<li><a href="~/SendMailer">Send Email Alert</a></li>
+							<li><a href="~/SendSMS">Send SMS Alert</a></li>
+							<li><a href="~/Account/Parameters">Parameter</a></li>
+                       
+							@*<li><a href="#">Another action</a></li>
+								<li><a href="#">Something else here</a></li>
+								<li class="divider"></li>
+								<li class="dropdown-header">Nav header</li>
+								<li><a href="#">Separated link</a></li>
+								<li><a href="#">One more separated link</a></li>*@
+						</ul>
+					</li>
+				</ul>
+				@Html.Partial("_LoginPartial")
+			</div>
+			<!--/.nav-collapse -->
+		</div>
+		<!--/.container-fluid -->
+	</nav>
+	<div class="container body-content">
+
+		@RenderBody()
+
+	</div>
+
+	@RenderSection("scripts", required: false)
+
+	@{
+		//prevent user go back to page after logout.
+		if (!IsPost)
+		{
+			if (Session["user"] == null)
+			{
+				if (HttpContext.Current.Request.Url.AbsolutePath.ToString() != "/")
+				{
+					Response.Redirect("~/Account/Login");
+				}
+				else
+				{
+					Response.Redirect("~/Account/Login");
+				}
+			}
+		}
+	}
+</body>
+</html>
+<script>
+
+	$(document).ready(function () {
+		$("input[type='search']").keyup(function () {
+
+			if ($(this).val() !== '') {
+				$(this).css('background-color', '#faffbd')
+			} else {
+				$(this).css('background-color', '#fff')
+			}
+
+		});
+	});
+	var baseUrl = '@Url.Content("~/")';
+	var sessionTimeoutWarning = @Session.Timeout;
+	var sTimeout = parseInt(sessionTimeoutWarning) * 60 * 1000;
+	var t;
+	//window.onload = resetTimer;
+	// DOM Events
+	document.onmousemove = resetTimer;
+	document.onmousedown = resetTimer; // touchscreen presses
+	document.ontouchstart = resetTimer;
+	document.onclick = resetTimer;     // touchpad clicks
+	document.onscroll = resetTimer;    // scrolling with arrow keys
+	document.onkeypress = resetTimer;
+
+	function logout() {
+		//document.getElementById('logoutForm').submit()
+		window.location = baseUrl + "Account/Login?Sessiontimeout=true";
+
+
+	}
+
+	function resetTimer() {
+		clearTimeout(t);
+		t = setTimeout(logout, sTimeout)
+		// 1000 milisec = 1 sec
+	}
+</script>
+
+
+
+

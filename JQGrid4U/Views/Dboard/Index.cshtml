@@ -1,0 +1,138 @@
+﻿@{
+	ViewBag.Title = "Dashboard";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Scripts/DatatableButton/CSS/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<script src="~/Scripts/DatatableButton/Script/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/dataTables.bootstrap.js"></script>
+
+<div class="container">
+	<fieldset>
+		<legend>
+			<h3><b>DASHBOARD</b></h3>
+		</legend>
+	</fieldset>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-default setwidth">
+				<div class="panel-body">
+					<table class="table table-striped table-bordered table-responsive" id="tblConveyor">
+						<thead>
+							<tr class="navbar-inverse">
+								<th style="font-size:large; text-align:center;" class="border_right"><span style="color:white">Conveyor</span></th>
+								<th style="font-size:large; text-align:center;" class="border_right border_left" colspan="3"><span style="color:white">Pulleys</span></th>
+								<th style="font-size:large; text-align:center;" class="border_left" colspan="3"><span style="color:white">Rollers</span></th>
+							</tr>
+							<tr style="background-color:#FFFFFF;">
+								<th id="thsort">&nbsp;</th>
+								<th><img src="~/images/Circle_Red.png" /></th>
+								<th><img src="~/images/Circle_Orange.png" /></th>
+								<th class="border_right"><img src="~/images/Circle_Green.png" /></th>
+								<th class="border_left"><img src="~/images/Circle_Red.png" /></th>
+								<th><img src="~/images/Circle_Orange.png" /></th>
+								<th><img src="~/images/Circle_Green.png" /></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var table;
+	//var baseurl = "";
+	//$(document).ready(function () { var pathArray = location.href.split('/'); baseurl = pathArray[0] + '//' + pathArray[2] + '/'; });
+
+	$(document).ready(function () {
+		GetDashboardData();
+	});
+	setInterval(function () { table.ajax.reload(null, false); }, 5000);
+
+	function GetDashboardData() {
+		table = $('#tblConveyor').DataTable({
+			//lengthChange: false,
+			//bSort: false,
+			stateSave: true,
+			"bAutoWidth": false,
+			responsive: true,
+
+			ajax: {
+				url: "/Dboard/SelectDashboard",
+				dataSrc: ''
+			},
+			fnRowCallback: function (nRow, aData, iDisplayIndex) {
+				$('td:eq(0)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=All&status=All&Sitename=' + aData.Sitename + '">' + aData.Sitename + '</a>');
+				$('td:eq(1)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=Pulley&status=Critical&Sitename=' + aData.Sitename + '">' + aData.PulStatusCritical + '</a>');
+				$('td:eq(2)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=Pulley&status=Warning&Sitename=' + aData.Sitename + '">' + aData.PulStatusWarning + '</a>');
+				$('td:eq(3)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=Pulley&status=OK&Sitename=' + aData.Sitename + '">' + aData.PulStatusOk + '</a>');
+				$('td:eq(4)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=Roller&status=Critical&Sitename=' + aData.Sitename + '">' + aData.RolStatusCritical + '</a>');
+				$('td:eq(5)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=Roller&status=Warning&Sitename=' + aData.Sitename + '">' + aData.RolStatusWarning + '</a>');
+				$('td:eq(6)', nRow).html('<a href="/Monit?site=' + aData.siteID + '&type=Roller&status=OK&Sitename=' + aData.Sitename + '">' + aData.RolStatusOk + '</a>');
+				return nRow;
+			},
+			"columns": [
+				{ data: "Sitename", className: "alignleft border_right" },
+				{ data: "PulStatusCritical", className: "border_left" },
+				{ data: "PulStatusWarning" },
+				{ data: "PulStatusOk", className: "border_right" },
+				{ data: "RolStatusCritical", className: "border_left" },
+				{ data: "RolStatusWarning" },
+				{ data: "RolStatusOk" }
+			],
+			//"lengthMenu": [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
+			"aaSorting": [[1, 'desc'], [2, 'desc'], [4, 'desc'], [5, 'desc']],
+			"columnDefs": [
+				{ "width": "7%", "targets": 1 },
+				{ "width": "7%", "targets": 2 },
+				{ "width": "7%", "targets": 3 },
+				{ "width": "7%", "targets": 4 },
+				{ "width": "7%", "targets": 5 },
+				{ "width": "7%", "targets": 6 }
+			],
+			select: true
+		});
+						
+	}
+	$('#tblConveyor tbody').on('click', 'td', function () {
+		window.location.href = $(this).find("a[href]").attr('href');
+	});
+</script>
+	@*<style>
+		table.dataTable.display tbody td:hover {
+			background-color: #ffd800 !important
+		}
+	</style>*@
+	<style>
+		.setwidth {
+			min-width: 525px;
+		}
+		table.dataTable tbody td:hover {
+			/*background-color: #ffd800 !important*/
+			text-decoration: underline;
+			cursor:hand; cursor:pointer;
+		}
+		table.dataTable tbody tr {
+			background-color: #ffffff;
+			text-align: center
+		}
+
+		table.dataTable tbody td.alignleft {
+			text-align: left;
+		}
+		table.dataTable thead th {
+			text-align: right;
+		}
+		/*.table-bordered > tbody > tr > td, .table-bordered > tbody > tr > th, .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {*/
+		.border_right {
+			border-right: 5px solid #ddd !important;
+		}
+		.border_left {
+			border-left: 5px solid #ddd !important;
+		}
+
+	</style>

@@ -1,0 +1,220 @@
+﻿
+@{
+    ViewBag.Title = "Send SMS Alert";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Scripts/DatatableButton/CSS/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/responsive.bootstrap.min.css" rel="stylesheet" />
+
+<script src="~/Scripts/DatatableButton/Script/datetime.js"></script>
+<script src="~/Scripts/DatatableButton/Script/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/dataTables.bootstrap.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/datatable.responsive.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/responsive.bootstrap.min.js"></script>
+
+<div class="container">
+	<fieldset style="margin-bottom:10px;">
+		<legend>
+			<b>Send SMS Alert</b>
+		</legend>
+		@using (Html.BeginForm())
+		{
+			@Html.ValidationSummary()
+			<p style="margin-top:-15px;"> This will send SMS alert based on the Mobile Number listed below with AutoEmailAlert set to true  for all devices whose internal temperature greater or equals based on the set parameter </p>
+			@*<a href="" onclick="return confirm('Continue Sending SMS Alert ?')"> <input type="submit" value="Send" class="btn btn-default" /> </a>*@
+			<input type="button" id="btnSendSMS" value="Send" class="btn btn-default" />
+		}
+	</fieldset>
+
+	<div class="modal fade" id="UserModal" role="dialog">
+		<div class="modal-dialog modal-md">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						&times;
+					</button>
+					<h4 class="modal-title for-test-email">
+						Send SMS
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div id="divAlert">
+					</div>
+					<div class="form-horizontal">
+						<div id="row">
+							<div class="form-group for-test-email">
+								<label class="control-label col-sm-3" for="txtSendingEmail">
+									Sending...
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer form-group">
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-default">
+				<div id="panelAlert">
+				</div>
+				<div class="panel-body">
+					<div id="divUserTable" style="margin-top:10px;">
+						<table id="listOfUsers" class="table table-responsive table-striped table-bordered">
+							<thead style="color:ivory;" class="navbar-inverse">
+								<tr>
+									<th>First Name</th>
+									<th>Surname</th>
+									<th>Email Address</th>
+									<th>User Level</th>
+									<th>Mobile No</th>
+									<th>AutoEmailAlert</th>
+									<th>Disabled</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-default">
+				<div id="panelAlert">
+				</div>
+				<div class="panel-body">
+					<div id="divUserTable" style="margin-top:10px;">
+						<table id="listOfDevices" class="table table-responsive table-striped table-bordered">
+							<thead style="color:ivory;" class="navbar-inverse">
+								<tr>
+									@*<th>Auto ID</th>*@
+									<th>Device ID</th>
+									<th>Device Frequency</th>
+									<th>Ambient Temperature</th>
+									<th>Internal Temperature</th>
+									<th>Device Stamp</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function () {
+		listOfUser();
+		lisfOfDevice();
+	});
+	var table;
+	var deviceTable;
+	function listOfUser() {
+
+		table = $("#listOfUsers").DataTable({
+			ajax: {
+				url: "User/SelectUser",
+				dataSrc: ''
+			},
+			"bAutoWidth": false,
+			"columns": [
+				{ data: "FirstName" },
+				{ data: "SurName" },
+				{ data: "EmailAdd" },
+				{ data: "UserLevel" },
+				{ data: "Mobileno" },
+				{ data: "AutoEmailAlert" },
+				{ data: "Disabled" },
+			],
+			responsive: true,
+			bDestroy: true
+
+		});
+	}
+	function lisfOfDevice() {
+
+		table = $("#listOfDevices").DataTable({
+			ajax: {
+				url: "devicedata/selectdevicedata",
+				dataSrc: ''
+			},
+			"bAutoWidth": false,
+			"columns": [
+				//{ data: "autoId" },
+				{ data: "deviceId" },
+				{ data: "deviceFreq" },
+				{ data: "deviceAmbientTemp" },
+				{ data: "deviceInternalTemp" },
+				{ data: "deviceStamp", render: function (data) { if (moment(data).isValid()) return moment(data).format('DD/MM/YYYY hh:mm A'); else { return ""; } } }
+			],
+			responsive: true,
+			bDestroy: true
+
+		});
+	}
+
+	//Button Test Email Click
+	$('#btnSendSMS').click(function () {
+		$(".for-test-email > label").show();
+		$("#UserModal").modal({
+			modal: true, backdrop: 'static', keyboard: false
+		});
+		$("#divAlert").html("<div id='forAlert'></div>");
+		$.ajax({
+			type: "POST",
+			url: "SendSMS/SendSMS",
+			dataType: 'json',
+			contentType: false,
+			processData: false,
+			success: function (res) {
+				$(".for-test-email > label").hide();
+				if (res.success == true) {
+					BootsAlert("success", "Success", res.responseText, "", "divAlert", "");
+				}
+				else {
+					BootsAlert("danger", "Error", res.responseText, "", "divAlert", "");
+				}
+			}
+		});
+	});
+	function BootsAlert(alertType, titleAlert, titleMessage, withButton, divElementName, btnName) {
+		if (withButton != "T" && alertType != "danger") {
+			setTimeout(function () {
+				$(".alert").fadeTo("fast", 0).slideUp("fast", function () {
+					$(this).remove();
+					if (alertType == "success") {
+						$('.modal').modal('hide');
+					}
+				});
+
+			}, 3000);
+		}
+
+		if (withButton == "T") {
+			if (divElementName != "" && btnName != "") {
+				$("#" + divElementName + "").html("<div class='alert alert-" + alertType + "'><strong>" + titleAlert + "!</strong> " + titleMessage + "<div class='pull-right'><a class='btn btn-default pull-right btn-sm' data-dismiss='alert'>Cancel</a><a type='button' id='" + btnName + "' class='btn btn-default pull-right btn-sm' style='margin-right:3px'>Yes</a></div></div>");
+			}
+			else {
+				console.log("put div element id and btn id");
+			}
+		}
+
+		if (withButton != "T") {
+			if (alertType == "success") {
+				$("#" + divElementName + "").html("<div class='alert alert-" + alertType + "'><strong>" + titleAlert + "!</strong> " + titleMessage + "</div>");
+			}
+			else {
+				$("#" + divElementName + "").html("<div class='alert alert-" + alertType + "'><strong>" + titleAlert + "!</strong> " + titleMessage + "</div>");
+			}
+		}
+	}
+</script>

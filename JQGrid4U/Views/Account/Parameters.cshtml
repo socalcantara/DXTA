@@ -1,0 +1,99 @@
+﻿@model JQGrid4U.Models.ParameterViewModel
+
+
+@{
+	ViewBag.Title = "Parameter";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<html>
+<head>
+
+	<!-- The jQuery library is a prerequisite for all jqSuite products -->
+	<script type="text/ecmascript" src="~/Scripts/js/jquery.min.js"></script>
+	<!-- We support more than 40 localizations -->
+	<script type="text/ecmascript" src="~/Scripts/js/trirand/i18n/grid.locale-en.js"></script>
+	<!-- This is the Javascript file of jqGrid -->
+	<script type="text/ecmascript" src="~/Scripts/js/trirand/jquery.jqGrid.min.js"></script>
+	<!-- This is the localization file of the grid controlling messages, labels, etc.
+	<!-- A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom -->
+	<!-- The link to the CSS that the grid needs -->
+	<link rel="stylesheet" type="text/css" media="screen" href="~/css/trirand/ui.jqgrid-bootstrap.css" />
+
+
+
+
+	<script src="~/Scripts/js/jquery-1.8.2.min.js"></script>
+
+
+
+	<link href="~/css/bootstrap-editable.css" rel="stylesheet">
+	<script src="~/scripts/js/bootstrap-editable.min.js"></script>
+
+
+
+	<script>
+		$.jgrid.defaults.width = 780;
+		$.jgrid.defaults.styleUI = 'Bootstrap';
+	</script>
+
+	<meta charset="utf-8" />
+
+
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script>
+		function showDrop() {
+			$('#select').attr('size', 3);
+			$("#select").show();
+		}
+		function populateTextBox() {
+			var val = $("#select option:selected").text();
+			$("#input").val(val);
+		}
+	</script>
+
+
+
+
+
+</head>
+<body>
+
+
+
+	<fieldset>
+		<legend>
+			<b>Parameter</b>
+		</legend>
+	</fieldset>
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+					<div id="panelAlert">
+					</div>
+					<div class="panel-body">
+
+						@using (Html.BeginForm("Parameters", "Account", FormMethod.Post))
+						{
+
+							@Html.ValidationSummary()
+							<p> Temperature Critical Level</p>	<p style="width:150px;">@Html.TextBoxFor(m => m.TempCriticalLevel, new { Value = ViewBag.TempCriticalLevel, @class = "form-control" }) </p>
+							<p> Pulley Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => m.PulleyDeviceExpiry, new { Value = ViewBag.RollerDeviceExpiry, @class = "form-control" }) </p>
+							<p> Roller Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => m.RollerDeviceExpiry, new { Value = ViewBag.PulleyDeviceExpiry, @class = "form-control" }) </p>
+							<p> Email Alert Interval </p> <p style="width:150px;">@Html.TextBoxFor(m => m.EmailAlertInterval, new { Value = ViewBag.EmailAlertInterval, @class = "form-control" }) </p>
+							<p> Communication Port </p> <p style="width:150px;">@Html.TextBoxFor(m => m.ComPort, new { Value = ViewBag.ComPort, @class = "form-control" }) </p>
+
+
+							<button type="submit" class="btn btn-default">Update</button>
+
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+
+	
+
+
+</body>
+</html>

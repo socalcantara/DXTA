@@ -1,0 +1,32 @@
+﻿@*Add by Soc*@
+<div class="modal fade" id="UserModal" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					&times;
+				</button>
+				<h4 class="modal-title for-test-email">
+					Change Password
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div id="divAlert">
+					<div class='alert alert-success'><strong>Success: </strong>Your password has been successfully changed.</div>
+				</div>
+			</div>
+			<div class="modal-footer form-group">
+			</div>
+		</div>
+	</div>
+</div>
+@*Add by Soc*@
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		alert('test');
+		$("#UserModal").modal({
+			modal: true, backdrop: 'static', keyboard: false
+		});
+	});
+</script>

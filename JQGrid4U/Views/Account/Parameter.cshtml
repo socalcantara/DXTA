@@ -1,0 +1,78 @@
+﻿@{
+	ViewBag.Title = "Parameter";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@model IList<JQGrid4U.BL.Parameter>
+
+
+<html>
+<head>
+
+	@*<!-- The jQuery library is a prerequisite for all jqSuite products -->
+	<script type="text/ecmascript" src="~/Scripts/js/jquery.min.js"></script>
+	<!-- We support more than 40 localizations -->
+	<script type="text/ecmascript" src="~/Scripts/js/trirand/i18n/grid.locale-en.js"></script>
+	<!-- This is the Javascript file of jqGrid -->
+	<script type="text/ecmascript" src="~/Scripts/js/trirand/jquery.jqGrid.min.js"></script>
+	<!-- This is the localization file of the grid controlling messages, labels, etc.
+	<!-- A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom -->
+	<!-- The link to the CSS that the grid needs -->
+	<link rel="stylesheet" type="text/css" media="screen" href="~/css/trirand/ui.jqgrid-bootstrap.css" />
+
+
+
+
+	<script src="~/Scripts/js/jquery-1.8.2.min.js"></script>
+
+
+
+	<link href="~/css/bootstrap-editable.css" rel="stylesheet">
+	<script src="~/scripts/js/bootstrap-editable.min.js"></script>
+
+
+
+	<script>
+		$.jgrid.defaults.width = 780;
+		$.jgrid.defaults.styleUI = 'Bootstrap';
+	</script>*@
+
+	<meta charset="utf-8" />
+	<title>Parameter Editing</title>
+
+
+
+</head>
+<body>
+
+	@foreach (var param in
+					Model)
+	{
+
+		<fieldset>
+			<legend>
+				<b>Parameter</b>
+			</legend>
+
+
+			@using (Html.BeginForm("Parameters", "Account", FormMethod.Post))
+			{
+
+				@Html.ValidationSummary()
+
+				<p> Temperature Critical Level</p>	<p style="width:150px;"> @Html.TextBoxFor(m => param.TempCriticalLevel, new { @readonly = true, Value = param.TempCriticalLevel, @class = "form-control" })		 </p>
+				<p> Pulley Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => param.PulleyDeviceExpiry, new { @readonly = true, Value = param.PulleyDeviceExpiry, @class = "form-control" }) </p>
+				<p> Roller Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => param.RollerDeviceExpiry, new { @readonly = true, Value = param.RollerDeviceExpiry, @class = "form-control" }) </p>
+				<p> Email Alert Interval </p> <p style="width:150px;">@Html.TextBoxFor(m => param.EmailAlertInterval, new { @readonly = true, Value = param.EmailAlertInterval, @class = "form-control" }) </p>
+				<p> Communication Port </p> <p style="width:150px;">@Html.TextBoxFor(m => param.ComPort, new { @readonly = true, Value = param.ComPort, @class = "form-control" }) </p>
+
+				<button type="button" class="btn btn-default" onclick="window.location.href='../dboard'"> Home </button>
+			}
+		</fieldset>
+	}
+
+</body>
+</html>
+
+

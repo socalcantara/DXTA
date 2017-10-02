@@ -1,0 +1,241 @@
+﻿@{
+	ViewBag.Title = "Device Details";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Scripts/DatatableButton/CSS/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/buttons.bootstrap.min.css" rel="stylesheet" />
+
+<script src="~/Scripts/DatatableButton/Script/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/dataTable.bootstrap.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/jszip.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/pdfmake.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/vfs_fonts.js"></script>
+<script src="~/Scripts/DatatableButton/Script/buttons.html5.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/buttons.print.min.js"></script>
+
+
+<div class="container">
+	<fieldset>
+		<legend>
+			<h3><a href="~/Dboard"><label id="lblSiteName" style="color:black;"></label></a></h3>
+		</legend>
+	</fieldset>
+	<div class="row" style="margin-top:-10px;">
+		<div class="col-lg-12">
+			<div class="dropdown">
+				<b>Type:</b> <select name="conveyors" id="conveyors">
+							<option value="Pulley">Pulley</option>
+						 	<option value="Roller">Roller</option>
+						 	<option value="All">All</option>
+						 </select>
+				<b>Status:</b>
+				<input type="checkbox" class="checkBoxClass" id="chkOk" name="OK" value="OK" />&nbsp;OK
+				<input type="checkbox" class="checkBoxClass" id="chkWarning" name="Warning" value="Warning" />&nbsp;Warning
+				<input type="checkbox" class="checkBoxClass" id="chkCritical" name="Critical" value="Critical" />&nbsp;Critical
+				@*<a href="@Url.Action("ExportToExcel")" class="btn btn-default">Export</a>*@
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-default setwidth" style="margin-top:10px">
+				<div class="panel-body">
+					@*<div class="row" style="margin-left:-20px;">
+						<div class="col-lg-12">
+							<div id="buttons"></div>
+						</div>
+					</div>*@
+					<div class="row" style="margin-top:5px;">
+						<div class="col-lg-12">
+
+								<table class="table table-striped table-bordered" id="tblMonitoring">
+									<thead style="color:ivory;" class="navbar-inverse">
+										<tr>
+											<th style="text-align:center; font-size:large;">Status</th>
+											<th style="text-align:center; font-size:large;">Type</th>
+											<th style="text-align:center; font-size:large;">ID</th>
+											<th style="text-align:center; font-size:large;">Last Change</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="str_site" class='@(Request.QueryString["site"] != null ? Request.QueryString["site"] : null)'> </div>
+<div id="str_type" class='@(Request.QueryString["type"] != null ? Request.QueryString["type"] : null)'> </div>
+<div id="str_status" class='@(Request.QueryString["status"] != null ? Request.QueryString["status"] : null)'> </div>
+<div id="str_sitename" class='@(Request.QueryString["sitename"] != null ? Request.QueryString["sitename"] : null)'> </div>
+
+		<script type="text/javascript">
+			var sitename = $('#str_sitename').attr('class');
+			var con_type = $('#str_type').attr('class');
+			var table;
+			setInterval(function () { table.ajax.reload(null, false); }, 5000);
+			$.fn.dataTable.ext.type.detect.unshift(
+				function (d) {
+					return d === 'OK' || d === 'Warning' || d === 'Critical' ?
+						'salary-grade' :
+						null;
+				}
+			);
+
+			$.fn.dataTable.ext.type.order['salary-grade-pre'] = function (d) {
+				switch (d) {
+					case 'OK': return 1;
+					case 'Warning': return 2;
+					case 'Critical': return 3;
+				}
+				return 0;
+			};
+
+			$(document).ready(function () {
+				$('#lblSiteName').text(sitename);
+				$("#conveyors option[value='" + con_type + "']").prop("selected", true);
+
+				GetData($('#str_site').attr('class'), $('#str_type').attr('class'), $('#str_status').attr('class'));
+				if ($('#str_status').attr('class').toLowerCase() == 'ok') {
+					$('#chkOk').prop('checked', true);
+				}
+				else if ($('#str_status').attr('class').toLowerCase() == 'warning') {
+					$('#chkWarning').prop('checked', true);
+				}
+				else if ($('#str_status').attr('class').toLowerCase() == 'critical') {
+					$('#chkCritical').prop('checked', true);
+				}
+				else {
+					$('.checkBoxClass').prop('checked', true);
+				}
+			});
+			function GetData(siteID, type, status) {
+				//buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+				table = $('#tblMonitoring').DataTable({
+					//lengthChange: false,
+					//bSort: false,
+					stateSave: true,
+					"bAutoWidth": false,
+					ajax: {
+						url: "/Monit/SelectMonitParam",
+						dataSrc: '',
+						data: { siteid: siteID, type: type, status: status }
+					},
+					"fnRowCallback": function (nRow, aData, iDisplayIndex) {
+						$('td:eq(2)', nRow).html('<a href="/ChartJS?deviceid=' + aData.ID + '&status=' + aData.Status + '&sitename=' + aData.siteName + '">' + aData.ID + '</a>');
+						if (aData.Status == "Warning") {
+							$('td:eq(0)', nRow).addClass('Warning');
+						}
+						if (aData.Status == "OK") {
+							$('td:eq(0)', nRow).addClass('OK');
+						}
+						if (aData.Status == "Critical") {
+							$('td:eq(0)', nRow).addClass('Critical');
+						}
+						return nRow;
+					},
+					"columns": [
+						{ data: "Status" },
+						{ data: "Typ" },
+						{ data: "ID", className: "alink" },
+						{ data: "Laps" }
+					],
+					"columnDefs": [{
+						"type": "salary-grade",
+						"targets": -1
+					}],
+					//"lengthMenu": [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
+					"aaSorting": [[0, 'desc'], [3, 'desc']],
+					responsive: true,
+					dom: "<'row'<'col-sm-3'l><'col-sm-5 text-left'B><'col-sm-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+					"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+					buttons: ['excel','csv']
+				});
+				//var buttons = new $.fn.dataTable.Buttons(table, {
+				//	buttons: [
+				//		{ extend: 'excel', className: 'btn btn-default' },
+				//		{ extend: 'csv' , className: 'btn btn-default' }
+				//	]
+				//}).container().appendTo($('#tblMonitoring_wrapper .col-sm-6:eq(0)'));
+			}
+
+			$(function () {
+				$('#tblMonitoring tbody').on('click', 'td', function () {
+					if ($(this).index() == 2) {
+						window.location.href = $(this).find("a[href]").attr('href');
+					}
+
+				});
+				var options = [];
+			});
+			$('#btn_export').click(function () {
+				$.ajax({
+					type: "POST",
+					url: "/Monit/ExportToExcel",
+					success: function (data) { },
+					error: function (xhr, ajaxOptions, thrownError) {
+						alert(xhr.status); alert(thrownError);
+					}
+				});
+			});
+
+			function Click_Filter() {
+				var val = [];
+				$(':checkbox:checked').each(function (i) {
+					val[i] = $(this).val();
+				});
+				table.destroy();
+				GetData($('#str_site').attr('class'), $("#conveyors option:selected").text(), val.toString());
+			}
+			$(".checkBoxClass").click(function () {
+				Click_Filter();
+			});
+			$('select').on('change', function () {
+				Click_Filter();
+			});
+
+
+		</script>
+<style>
+	.setwidth {
+		min-width: 358px;
+	}
+	.alink:hover {
+		/*background-color: #ffd800 !important;*/
+		text-decoration: underline;
+		cursor: hand; cursor: pointer;
+	}
+	label {
+		cursor: hand;
+		cursor: pointer;
+	}
+	table.dataTable tbody td.alignleft {
+		text-align: left;
+	}
+
+	table.dataTable tbody td.Warning {
+		color: orange;
+	}
+
+	table.dataTable tbody td.OK {
+		color: green;
+	}
+
+	table.dataTable tbody td.Critical {
+		color: red;
+	}
+	table.dataTable tbody tr {
+		text-align: center
+	}
+	table.dataTable thead th {
+		text-align: center;
+	}
+</style>

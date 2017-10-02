@@ -1,0 +1,120 @@
+﻿/* Accordion Menu by www.menucool.com/vertical/accordion-menu*/
+
+#accordion {
+    visibility:hidden;
+}
+
+/* root UL */
+#accordion ul {
+    padding:0;
+    margin:0;
+    list-style:none;
+}
+
+/*---------- Indents ------*/
+
+/*top-level*/
+#accordion .top > a, #accordion .top > div { 
+    padding-left:16px;
+    padding-top:12px;padding-bottom:12px;
+}
+
+/*2nd-level*/
+#accordion li li > a, #accordion li li > div {
+    padding-left:30px;
+    padding-top:8px;padding-bottom:8px;
+}
+
+/*3rd-level*/
+#accordion li li li > a, #accordion li li li > div { padding-left:50px; }
+
+
+/*---------- Other styles ------*/
+
+/* headings */
+#accordion li > div{
+    font-family:'Lucida Grande', Geneva, sans-serif;
+    font-weight:bold;
+    font-size:large;
+    color:#999;
+}
+#accordion .active > div{
+    color:#999;
+}
+
+#accordion li {
+    font-family:Arial, sans-serif;
+    font-size:13px;
+	padding: 0;
+    margin:0;
+    overflow:hidden;
+	cursor: pointer;
+}
+
+/* Add borders to the top LIs */
+#accordion .top {
+    /*border-bottom: 1px solid #444;*/
+}
+
+/* links */
+#accordion a {
+    color:#999;
+    font-weight:normal;
+    font-size:13px;
+    text-decoration:none;
+    display:block;
+    line-height:1;
+    transition:all 0.3s;
+}
+#accordion a:hover {
+    color:#ccc;
+}
+#accordion a.active {
+    color:#ddd;
+    background-color:rgba(255,255,255,0.15);
+    font-weight:bold;
+}
+
+
+
+/* carets */
+#accordion .caret {
+    color:inherit;
+    float:right;
+    margin-top:8px;
+    margin-right:16px;
+    width: 0;
+    height: 0;
+    overflow:hidden;/*for IE6*/
+    border-style:solid;
+    border-width:6px;
+    position:relative;
+    
+    border-top:6px solid initial;
+    border-bottom-width:0px;
+    border-left-color:transparent;
+    border-right-color: transparent;
+}  
+
+#accordion li li .caret {
+    margin-right:6px;
+    float:none;
+    display:inline-block;
+    margin-top:auto;
+    margin-bottom:4px;
+}  
+
+#accordion .caret.active {
+    margin-bottom:4px;
+    border-bottom-width:6px;
+    border-bottom-color:initial;
+    border-top: none;
+}
+
+#accordion li {
+    -ms-user-select:none;
+    -mos-user-select:none;
+    -webkit-user-select:none;
+    -o-user-select:none;
+    user-select:none;
+}

@@ -1,0 +1,599 @@
+﻿
+
+@model IList<JQGrid4U.BL.Models.Point>
+@{
+	ViewBag.Title = "Live Chart";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+
+	<script src="~/Scripts/Graph/canvasjs.min.js"></script>
+
+	<script type="text/javascript" src="~/bootstrap_dpicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="~/bootstrap_dpicker/js/locales/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
+
+
+
+</head>
+<div id="str_sitename" class='@(Request.QueryString["sitename"] != null ? Request.QueryString["sitename"] : null)'> </div>
+<div id="str_site" class='@(Request.QueryString["deviceid"] != null ? Request.QueryString["deviceid"] : null)'> </div>
+<div id="str_status" class='@(Request.QueryString["status"] != null ? Request.QueryString["status"] : null)'> </div>
+<div id="str_fromdate" class='@(Request.QueryString["fromdate"] != null ? Request.QueryString["fromdate"] : null)'> </div>
+<div id="str_todate" class='@(Request.QueryString["todate"] != null ? Request.QueryString["todate"] : null)'> </div>
+<div style="position:absolute;top:150px;left:698px;z-index:990" onclick="getDateToday();"><input type="button" class="btn btn-default" value="Today" /></div>
+<div style="position:absolute;top:150px;left:762px;z-index:991" onclick="getDate3D();"> <input type="button" class="btn btn-default" value="3D" /></div>
+<div style="position:absolute;top:150px;left:806px;z-index:992" onclick="getDate1Week();"> <input type="button" class="btn btn-default" value="1W" /></div>
+<div style="position:absolute;top:150px;left:853px;z-index:993" onclick="getDate2Week();"> <input type="button" class="btn btn-default" value="2W" /></div>
+<div style="position:absolute;top:150px;left:900px;z-index:994" onclick="getDate1M();"> <input type="button" class="btn btn-default" value="1M" /></div>
+<div style="position:absolute;top:150px;left:945px;z-index:995" onclick="getDate2M();"> <input type="button" class="btn btn-default" value="2M" /></div>
+<div style="position:absolute;top:150px;left:990px;z-index:996" onclick="getDate3M();"> <input type="button" class="btn btn-default" value="3M" /></div>
+<div style="position:absolute;top:150px;left:1035px;z-index:997" onclick=""> <input type="button" class="btn btn-default" onclick="showDate();" value="Custom" /></div>
+<div style="position:absolute;top:113px;left:1287px;z-index:999;visibility:hidden;" id="divbtn1"> <input type="button" class="btn btn-default" onclick="getCustom();" value="Redraw" /></div>
+
+<div style="position:absolute;top:50px;margin-left:20px;" class="container">
+
+
+	<label id="lbldeviceID" style="visibility:hidden;"></label>
+	<label id="lblsitename" style="visibility:hidden;"></label>
+	<h3><label id="lbldevice"></label></h3>
+	<h5><label>Current status : &nbsp;</label><label id="lblstatusID"></label></h5>
+	<h5><label>Current value : &nbsp;</label><label id="lblvalueID"></label></h5>
+	<h5><label>Current Date Selection : &nbsp;</label><label id="lblDateRange"></label></h5>
+
+	<div id="chartContainer"></div>
+
+
+</div>
+<div class="btn-default" style="position:absolute;top:610px;margin-left:34px;" onclick="goBack()"><input type="button" class="btn btn-default" value=" Back " /></div>
+
+<form action="" class="form-horizontal" role="form">
+
+
+	<div class="form-group" style="position:absolute;top:150px;left:1090px;z-index:1001;">
+		<label for="dtp_input2" class="col-md-2 control-label" id="lblfrom" style="display:none; width:200px;">Date From </label>
+		<div class="input-group date form_date col-md-5" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd" id="div1" style="visibility:hidden;">
+			<input class="form-control" type="text" value="" readonly>
+			<span class="input-group-addon"><span class="glyphicon glyphicon-remove" id="span1"></span></span>
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar" id="span2"></span></span>
+		</div>
+		<input type="hidden" id="dtp_input2" value="" /><br />
+	</div>
+
+
+	<div class="form-group" style="position:absolute;top:180px;left:1090px;z-index:1002;">
+		<label for="dtp_input2" class="col-md-2 control-label" id="lblto" style="display:none; width:200px;">Date To </label>
+		<div class="input-group date form_date col-md-5" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input3" data-link-format="yyyy-mm-dd" id="div2" style="visibility:hidden;">
+			<input class="form-control" type="text" value="">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-remove" id="span3"></span></span>
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar" id="span4"></span></span>
+		</div>
+		<input type="hidden" id="dtp_input3" value="" /><br />
+	</div>
+
+</form>
+
+
+
+
+
+<script type="text/javascript">
+
+
+	function goBack() {
+		window.history.back();
+	}
+
+	var site = $('#str_sitename').attr('class');
+	var deviceID = $('#str_site').attr('class');
+	var statID = $('#str_status').attr('class');
+	var vfrom = $('#str_fromdate').attr('class');
+	var vto = $('#str_todate').attr('class');
+
+
+	$(document).ready(function () {
+
+		//	$("#lbldeviceID").text(deviceID);
+		$("#lblstatusID").text(statID);
+
+
+		if (deviceID.substring(0, 1) == 'P') {
+			strmsg = 'Pulley ' + deviceID + ' on ' + site;
+		}
+		else {
+			strmsg = 'Roller ' + deviceID + ' on ' + site;
+		}
+
+		$("#lbldevice").text(strmsg);
+
+
+		var counter = 1;
+
+		var chart = new CanvasJS.Chart("chartContainer",
+			{
+				title: {
+					text: ""
+				},
+				data: [
+					{
+						type: "line",
+						dataPoints: []
+					}]
+			});
+
+		// Ajax request for getting JSON data
+
+	//	alert('from ' + vfrom + '  To : ' + vto);
+
+		var FromDate = new Date();
+		var ToDate = new Date();
+		FromDate.setDate(FromDate.getDate() - 6);
+		FromDate = new Date('08/31/2017 12:00 AM');
+
+
+		var vTo1 = new Date(vto);
+
+		var vyr = vTo1.getFullYear();
+		var vmo = vTo1.getMonth() + 1;
+		var vday = vTo1.getDate();
+		var vhr = vTo1.getHours();
+		var vmin = vTo1.getMinutes();
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		var ToDate = str;
+
+
+		var vFromDate = new Date(str);
+		var numberOfDaysToAdd = -6;
+
+		//vFromDate.setDate(vFromDate.getDate() + numberOfDaysToAdd);
+		vFromDate = new Date(vfrom);
+
+
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+		FromDate = str1;
+
+
+
+
+		var updateChart = function () {
+
+			var dataPoints = [];
+
+			$.getJSON("/graphdata/selectdevicebParamJson", { deviceid: deviceID, fromDate: str1, toDate: str }, function (data) {
+
+
+
+				for (var i = 0; i < data.length; i++) {
+
+					dataPoints.push({ label: data[i].x, y: data[i].y, lineColor: "red", color: "red" });
+					//alert('x:' + data[i].x + '  y:' + data[i].y + ' from date: ' + vfrom + '  ToDate:' + vto);
+					$("#lblvalueID").text(data[i].latestvalue);
+					$("#lblstatusID").text(data[i].stat);
+					$("#lblDateRange").text(data[i].daterange);
+
+
+
+
+				}
+				{
+
+				}
+
+
+				chart.options.data[0].dataPoints = [];
+
+				chart.options.data[0].dataPoints = dataPoints;
+				showDefaultText(chart, "No Data available");
+				chart.render();
+				counter++;
+
+			});
+		}
+
+    	updateChart();
+
+		// setInterval(function () { updateChart() }, 2000);
+
+	});
+
+
+	function showDefaultText(chart, text) {
+
+		var isEmpty = !(chart.options.data[0].dataPoints && chart.options.data[0].dataPoints.length > 0);
+
+		if (!chart.options.subtitles)
+			(chart.options.subtitles = []);
+
+		if (isEmpty)
+			chart.options.subtitles.push({
+				text: text,
+				verticalAlign: 'center',
+			});
+		else
+			(chart.options.subtitles = []);
+
+		$('.form_date').datetimepicker({
+			//language: 'en',
+			weekStart: 1,
+			todayBtn: 1,
+			autoclose: 1,
+			todayHighlight: 1,
+			startView: 2,
+			minView: 2,
+			forceParse: 0
+		});
+	}
+
+</script>
+
+<script>
+
+	function showDate() {
+		var x = document.getElementById('lblfrom');
+		x.style.display = 'block';
+		var y = document.getElementById('lblto');
+		y.style.display = 'block';
+
+		var a = document.getElementById('div1');
+		a.style.visibility = 'visible';
+
+		var b = document.getElementById('div2');
+		b.style.visibility = 'visible';
+
+		var b = document.getElementById('divbtn1');
+		b.style.visibility = 'visible';
+
+
+	}
+
+	function getDateToday() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = 0;
+
+		someDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		vFromDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+
+		window.location.href = loc;
+		//GraphDataParam / selectdeviceBparamJson ? deviceID = P3 & fromdate=08 / 01 / 2017 & todate=09 / 05 / 2017
+	}
+
+
+	function getDate3D() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+		var vheader = 'From : ' + vmo + '/' + vday + '/' + vyr + ' To : ';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = -2;
+
+		someDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		vFromDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+		vheader = vheader + vmoF + '/' + vdayF + '/' + vyrF;
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+		window.location.href = loc;
+
+		$("#lblDateRange").text('3 Days');
+
+	}
+
+
+	function getDate1Week() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = -7;
+
+		someDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		vFromDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+		//alert(loc);
+
+		window.location.href = loc;
+
+		$("#lblDateRange").text('One Week');
+
+		//GraphDataParam / selectdeviceBparamJson ? deviceID = P3 & fromdate=08 / 01 / 2017 & todate=09 / 05 / 2017
+	}
+
+	function getDate2Week() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = -13;
+
+		someDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		vFromDate.setDate(vTo.getDate() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+		window.location.href = loc;
+
+		$("#lblDateRange").text('Two Weeks');
+
+		//GraphDataParam / selectdeviceBparamJson ? deviceID = P3 & fromdate=08 / 01 / 2017 & todate=09 / 05 / 2017
+	}
+
+
+	function getDate1M() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = - 1;
+
+		someDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		vFromDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+		//alert(loc);
+
+		window.location.href = loc;
+
+		$("#lblDateRange").text('One Week');
+
+		//GraphDataParam / selectdeviceBparamJson ? deviceID = P3 & fromdate=08 / 01 / 2017 & todate=09 / 05 / 2017
+	}
+
+	function getDate2M() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = - 2;
+
+		someDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		vFromDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+		//alert(loc);
+
+		window.location.href = loc;
+
+		$("#lblDateRange").text('One Week');
+
+		//GraphDataParam / selectdeviceBparamJson ? deviceID = P3 & fromdate=08 / 01 / 2017 & todate=09 / 05 / 2017
+	}
+
+	function getDate3M() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date();
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = - 3;
+
+		someDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		vFromDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+		//alert(loc);
+
+		window.location.href = loc;
+
+		$("#lblDateRange").text('One Week');
+
+		//GraphDataParam / selectdeviceBparamJson ? deviceID = P3 & fromdate=08 / 01 / 2017 & todate=09 / 05 / 2017
+	}
+
+	function getCustom() {
+
+		var deviceID = $('#str_site').attr('class');
+		var vSiteName = $('#str_sitename').attr('class');
+		var vTo = new Date(dtp_input3.value);
+
+		var vyr = vTo.getFullYear();
+		var vmo = vTo.getMonth() + 1;
+		var vday = vTo.getDate();
+		var vhr = vTo.getHours();
+		var vmin = vTo.getMinutes();
+
+		var str = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 PM';
+		//var vFr = vmo + '/' + vday + '/' + vyr + ' ' + '11:59 AM';
+
+		var vFromDate = new Date(str);
+		var someDate = new Date(str);
+		var numberOfDaysToAdd = - 3;
+
+		someDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		vFromDate.setMonth(vTo.getMonth() + numberOfDaysToAdd);
+
+		vFromDate = new Date(dtp_input2.value);
+
+		var vyrF = vFromDate.getFullYear();
+		var vmoF = vFromDate.getMonth() + 1;
+		var vdayF = vFromDate.getDate();
+		var vhrF = "00";
+		var vminF = "00";
+		var str1 = vmoF + '/' + vdayF + '/' + vyrF + ' ' + vhrF + ':' + vminF + ' AM';
+
+
+		var loc = "graphDate?deviceid=" + $('#str_site').attr('class') + "&fromDate=" + str1 + " &toDate=" + str + " &siteName=" + vSiteName;
+
+		window.location.href = loc;
+
+		$("#lblDateRange").text('One Week');
+
+	}
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

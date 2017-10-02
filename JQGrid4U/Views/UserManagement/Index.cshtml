@@ -1,0 +1,576 @@
+﻿@model JQGrid4U.Models.AddNewUser
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = "User Management";
+}
+
+<link href="~/Scripts/DatatableButton/CSS/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/responsive.bootstrap.min.css" rel="stylesheet" />
+
+<script src="~/Scripts/DatatableButton/Script/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/dataTables.bootstrap.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/datatable.responsive.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/responsive.bootstrap.min.js"></script>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-default">
+				<div id="panelAlert">
+				</div>
+				<div class="panel-body">
+					<label for="">
+					</label>
+					<button type="button" id="btnOpenAddUser" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#UserModal" class="btn btn-default">
+						Add
+					</button>
+					<div id="divUserTable" style="margin-top:10px;">
+						<table id="listOfUsers" class="table table-striped table-bordered nowrap">
+							<thead style="color:ivory;" class="navbar-inverse">
+								<tr>
+									<th>First Name</th>
+									<th>Surname</th>
+									<th>Email Address</th>
+									<th>User Level</th>
+									<th>Mobile No</th>
+									<th>AutoEmailAlert</th>
+									<th>Disabled</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal Edit/Add User-->
+	<form id="modalValidator" data-toggle="validator" role="form">
+		<div class="modal fade" id="UserModal" role="dialog">
+			<div class="modal-dialog modal-md">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							&times;
+						</button>
+						<h4 class="modal-title for-edit-user">
+							Edit User
+						</h4>
+						<h4 class="modal-title for-add-user">
+							Add User
+						</h4>
+						<h4 class="modal-title for-test-email">
+							Test Email
+						</h4>
+					</div>
+					<div class="modal-body">
+						<div id="divAlert">
+						</div>
+						<div class="form-horizontal">
+							<div id="row">
+								<div class="form-group for-test-email">
+									<label class="control-label col-sm-3" for="txtSendingEmail">
+										Sending...
+									</label>
+								</div>
+								<div class="form-group for-both">
+									<input type="text" readonly="readonly" class="form-control" style="display:none;" id="txtID" name="ID">
+									<label class="control-label col-sm-3" for="txtAddFirstName">
+										First Name:
+									</label>
+									<div class="col-sm-9">
+										<input type="text" class="form-control required" id="txtAddFirstName" name="firstname" title="First Name">
+									</div>
+								</div>
+								<div class="form-group for-both">
+									<label class="control-label col-sm-3" for="txtSurname">
+										Surname:
+									</label>
+									<div class="col-sm-9">
+										<input type="text" class="form-control required" id="txtSurname" name="lastname" title="Surname">
+									</div>
+								</div>
+								<div class="form-group for-both">
+									<label class="control-label col-sm-3" for="txtAddEmail">
+										Email Address:
+									</label>
+									<div class="col-sm-9">
+										<input type="text" pattern="" class="form-control required" value="" id="txtAddEmail" name="emailaddress" data-error="Invalid email address" title="Email Address">
+									</div>
+								</div>
+								<div class="form-group for-both">
+									<label class="control-label col-sm-3" for="txtAddUserLevel">
+										User Level:
+									</label>
+									<div class="col-sm-9">
+										@*<input type="number" class="form-control required" min="1" max="5" id="txtAddUserLevel" name="userlevel" title="User Level">*@
+											<select class="form-control" id="txtAddUserLevel" title="User Level">
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
+											</select>
+									</div>
+								</div>
+								<div class="form-group for-edit-user">
+									<label class="control-label col-sm-3" for="txtUpdatePassword">
+										New Password:
+									</label>
+									<div class="col-sm-9">
+										<input type="password" class="form-control" id="txtUpdatePassword" title="New Password">
+									</div>
+								</div>
+								<div class="form-group for-edit-user">
+									<label class="control-label col-sm-3" for="txtUpdatePassword">
+										Confirm Password:
+									</label>
+									<div class="col-sm-9">
+										<input type="password" class="form-control" id="txtConfirmPassword" title="Confirm Password">
+									</div>
+								</div>
+								<div class="form-group for-both">
+									<label class="control-label col-sm-3" for="txtMobileNo">
+										Mobile No:
+									</label>
+									<div class="col-sm-9">
+										<input type="text" class="form-control required" id="txtMobileNo" name="mobilenum" title="Mobile No">
+									</div>
+								</div>
+								<div class="form-group for-both">
+									<label class="control-label col-sm-3" for="txtAddAutoMail">
+										Auto Email Alert:
+									</label>
+									<div class="col-sm-9">
+										<input id="txtAddAutoMail" type="checkbox" name="mailalert" class="form-control">
+									</div>
+								</div>
+								<div class="form-group for-both">
+									<label class="control-label col-sm-3" for="SelStatus">
+										Disabled:
+									</label>
+									<div class="col-sm-9">
+										<input id="SelStatus" type="checkbox" name="mailalert" class="form-control">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer form-group">
+						<button type="button" id="btnAddUser" class="btn btn-primary for-add-user">
+							Save
+						</button>
+						<button type="button" id="btnEditUser" class="btn btn-primary for-edit-user">
+							Save
+						</button>
+						<button type="button" class="btn btn-default close-button for-add-user" data-dismiss="modal">
+							Close
+						</button>
+						<button type="button" class="btn btn-default close-button for-edit-user" data-dismiss="modal">
+							Cancel
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+	
+	<style>
+		#listOfUsers.dataTable tbody tr.selected {
+			background-color: #000;
+			color: #fff;
+		}
+		.hide_me {
+			display: none;
+		}
+		.btnImage {
+		cursor: hand;
+		cursor: pointer;
+		}
+	</style>
+<script type="text/javascript">
+	$(function () {
+		listOfUser();
+		AddUser();
+		EditUser();
+
+
+
+
+		//input numeric only
+		$('#txtAddUserLevel, #txtMobileNo').on('change keyup', function () {
+			var sanitized = $(this).val().replace(/[^0-9]/g, '');
+			$(this).val(sanitized);
+		});
+
+		//Edit Row Data
+
+		$("#btnOpenAddUser").click(function () {
+			$('.form-group').removeClass('has-error');
+			$("#spnMatch").remove();
+			$(".for-add-user").show();
+			$(".for-edit-user").hide();
+			$(".for-test-email").hide();
+			$(".for-both").show();
+			$("input[type=text], textarea, input[type=password]").val("");
+			$("#divAlert").html("<div id='forAlert'></div>");
+			$("#btnAddUser").prop("disabled", false);
+			$("#SelStatus").prop("checked", false);
+			$("#txtAddAutoMail").prop("checked", false);
+			$("#txtAddUserLevel").val("");
+		});
+
+
+
+
+
+	});
+	var table;
+	function listOfUser() {
+		table = $("#listOfUsers").DataTable({
+			ajax: {
+				url: "UserManagement/GetUsersList",
+				dataSrc: ''
+			},
+			"bAutoWidth": false,
+			"columns": [
+				{ data: "FirstName" },
+				{ data: "SurName" },
+				{ data: "EmailAdd" },
+				{ data: "UserLevel" },
+				{ data: "Mobileno" },
+				{ data: "AutoEmailAlert" },
+				{ data: "Disabled" },
+				{
+					data: null,
+					"bSortable": false,
+					"mRender": function (o) {
+						//return '<img id=' + o.ID + ' src=../../images/edit.png class=btnImage />';
+						return '<button id=' + o.ID + ' class="btn btn-default edit">Edit</button> <button id=' + o.ID + ' email=' + o.EmailAdd + ' class="btn btn-default testemail">Test Email</button>';
+					}
+				}
+			],
+			//"oLanguage": {
+			//	"oPaginate": {
+			//		"sPrevious": "<",
+			//		"sNext": ">",
+			//		"sFirst": "<<",
+			//		"sLast": ">>"
+			//	}
+			//},
+			//"bLengthChange": false,
+			//"sPaginationType": "full_numbers",
+			//"iDisplayLength": 10,
+			responsive: true,
+			bDestroy: true
+
+		});
+
+		//Button Edit Click
+		$(function () {
+			$('#listOfUsers tbody').on('click', '.edit', function () {
+				$("#btnEditUser").prop("disabled", false);
+				$("#spnMatch").remove();
+				$("input[type=password]").val("");
+				$('.form-group').removeClass('has-error');
+				$('span[id^="junk"]').remove();
+				var empid = $(this).attr('id');
+
+				if (empid != "") {
+					getUserDetails(empid);
+					$("#UserModal").modal({
+						modal: true, backdrop: 'static', keyboard: false
+					});
+					$("#divAlert").html("<div id='forAlert'></div>");
+					$(".for-add-user").hide();
+					$(".for-test-email").hide();
+					$(".for-edit-user").show();
+					$(".for-both").show();
+				}
+				else {
+					alert("Please select a user");
+				}
+			});
+
+			//Button Test Email Click
+			$('#listOfUsers tbody').on('click', '.testemail', function () {
+				var emailAdd = $(this).attr('email');
+				$("#UserModal").modal({
+					modal: true, backdrop: 'static', keyboard: false
+				});
+				$("#divAlert").html("<div id='forAlert'></div>");
+				$(".for-test-email").show();
+				$(".for-test-email > label").show();
+				$(".for-add-user").hide();
+				$(".for-edit-user").hide();
+				$(".for-both").hide();
+				$(".close-button").hide();
+				$.ajax({
+					type: "POST",
+					url: "UserManagement/SendTestMail",
+					data: "MailTo=" + emailAdd,
+					success: function (res) {
+						$(".for-test-email > label").hide();
+						if (res.isError != "T") {
+							BootsAlert("success", "Success", res.message, "", "divAlert", "");
+						}
+						else {
+							BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+						}
+					}
+				});
+			});
+		});
+	}
+
+
+	function getUserDetails(empid) {
+		$.ajax({
+			type: "POST",
+			url: "UserManagement/GetUserDetails",
+			data: { empid: empid },
+			success: function (res) {
+				$("#txtID").val(res.ID);
+				$("#txtAddFirstName").val(res.FirstName);
+				$("#txtSurname").val(res.SurName);
+				$("#txtAddEmail").val(res.EmailAdd);
+				$("#txtAddUserLevel").val(res.UserLevel);
+				//$("#txtUpdatePassword").val(res.Pwd);
+				$("#txtMobileNo").val(res.Mobileno);
+				$("#txtAddAutoMail").prop("checked", res.AutoEmailAlert);
+				$("#SelStatus").prop("checked", res.Disabled);
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				alert(xhr.status);
+				alert(thrownError);
+			}
+		});
+	}
+
+
+
+	function AddUser() {
+		var empid;
+		var position;
+		$("#txtAddAutoMail").prop("checked", true);
+		$("#SelStatus").prop("checked", false);
+
+		$("#btnAddUser").click(function () {
+			$("#btnAddUser").prop("disabled", true);
+			var SurName = $("#txtSurname").val();
+			var FirstName = $("#txtAddFirstName").val();
+			var EmailAdd = $("#txtAddEmail").val();
+			var UserLevel = $("#txtAddUserLevel").val();
+
+			var mobileno = $("#txtMobileNo").val();
+			var AutoEmailAlert = $("#txtAddAutoMail").is(":checked") ? "true" : "false";
+			var Disabled = $("#SelStatus").is(":checked") ? "true" : "false";
+
+			var param = {
+				SurName: SurName,
+				FirstName: FirstName,
+				EmailAdd: EmailAdd,
+				UserLevel: UserLevel,
+				Mobileno: mobileno,
+				AutoEmailAlert: AutoEmailAlert,
+				Disabled: Disabled
+			}
+			//if (SurName != "" && FirstName != undefined && EmailAdd != "" && UserLevel != "" && Country != "" && mobileno != "" ) {
+			if (checkValidInput()) {
+				$.ajax({
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					type: "POST",
+					url: "UserManagement/InsertUser",
+					data: JSON.stringify(param),
+					success: function (res) {
+						if (res.isError != "T") {
+							BootsAlert("success", "Success", res.message, "", "divAlert", "");
+							//reload userTables list
+							listOfUser();
+						}
+						else {
+							BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+							$("#btnAddUser").prop("disabled", false);
+						}
+					}
+				});
+			}
+			else {
+				BootsAlert("danger", "Error", "Please complete all required fields.", "", "divAlert", "");
+				$("#btnAddUser").prop("disabled", false);
+
+			}
+		});
+	}
+	//Save Edited Values
+	function EditUser() {
+
+		$("#btnEditUser").click(function () {
+			$("#btnEditUser").prop("disabled", true);
+			var ID = $("#txtID").val();
+			var SurName = $("#txtSurname").val();
+			var FirstName = $("#txtAddFirstName").val();
+			var EmailAdd = $("#txtAddEmail").val();
+			var UserLevel = $("#txtAddUserLevel").val();
+			var mobileno = $("#txtMobileNo").val();
+			var pwd = $("#txtUpdatePassword").val();
+			var AutoEmailAlert = $("#txtAddAutoMail").is(":checked") ? "true" : "false";
+			var Disabled = $("#SelStatus").is(":checked") ? "true" : "false";
+			//var slpcode = $("#txtSlpcode").val(); //== "" ? 0 : $("#txtSlpcode").val();
+
+			var param = {
+				ID: ID,
+				SurName: SurName,
+				FirstName: FirstName,
+				EmailAdd: EmailAdd,
+				UserLevel: UserLevel,
+				Mobileno: mobileno,
+				AutoEmailAlert: AutoEmailAlert,
+				Disabled: Disabled,
+				Pwd: pwd
+			}
+			if (checkValidInput()) {
+				$.ajax({
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					type: "POST",
+					url: "UserManagement/UpdateUser",
+					data: JSON.stringify(param),
+					success: function (res) {
+						if (res.isError != "T") {
+							BootsAlert("success", "Success", res.message, "", "divAlert", "");
+							//reload userTables list
+							listOfUser();
+						}
+						else {
+							BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+							$("#btnEditUser").prop("disabled", false);
+						}
+					}
+				});
+			}
+			else {
+				BootsAlert("danger", "Error", "Please complete all required fields.", "", "divAlert", "");
+				$("#btnEditUser").prop("disabled", false);
+			}
+		});
+	}
+
+	function BootsAlert(alertType, titleAlert, titleMessage, withButton, divElementName, btnName) {
+		if (withButton != "T" && alertType != "danger") {
+			setTimeout(function () {
+				$(".alert").fadeTo("fast", 0).slideUp("fast", function () {
+					$(this).remove();
+					if (alertType == "success") {
+						$('.modal').modal('hide');
+						//window.location.reload();
+					}
+				});
+
+			}, 3000);
+		}
+
+		if (withButton == "T") {
+			if (divElementName != "" && btnName != "") {
+				$("#" + divElementName + "").html("<div class='alert alert-" + alertType + "'><strong>" + titleAlert + "!</strong> " + titleMessage + "<div class='pull-right'><a class='btn btn-default pull-right btn-sm' data-dismiss='alert'>Cancel</a><a type='button' id='" + btnName + "' class='btn btn-default pull-right btn-sm' style='margin-right:3px'>Yes</a></div></div>");
+			}
+			else {
+				console.log("put div element id and btn id");
+			}
+		}
+
+		if (withButton != "T") {
+			if (alertType == "success") {
+				$("#" + divElementName + "").html("<div class='alert alert-" + alertType + "'><strong>" + titleAlert + "!</strong> " + titleMessage + "</div>");
+			}
+			else {
+				$("#" + divElementName + "").html("<div class='alert alert-" + alertType + "'><a href='#' class='close' data-dismiss='alert' aria-label='close'>×</a><strong>" + titleAlert + "!</strong> " + titleMessage + "</div>");
+			}
+		}
+	}
+
+	function checkValidInput() {
+		var ok = true;
+		var lacking = "";
+		$("#spnMatch").remove();
+		$('.required').each(function () {
+			if ($(this).val().replace(/\s/g, '') == "") {
+				ok = false;
+				lacking += $(this).attr('title') + '\n';
+				$(this).parents('.form-group').addClass('has-error');
+			}
+			else if ($(this).attr('id') == "txtAddEmail") {
+				if (!validateEmail($(this).val())) {
+					ok = false;
+					$(this).parents('.form-group').addClass('has-error');
+				}
+				else {
+					$(this).parents('.form-group').removeClass('has-error');
+				}
+			}
+			else {
+				$(this).parents('.form-group').removeClass('has-error');
+			}
+		});
+
+		//UserLevel
+		if ($('#txtAddUserLevel').val() == "" || $('#txtAddUserLevel').val() == null) {
+			ok = false;
+			$('#txtAddUserLevel').parents('.form-group').addClass('has-error');
+		}
+		else {
+			$('#txtAddUserLevel').parents('.form-group').removeClass('has-error');
+		}
+
+		//Confirm Password
+		if ($('#txtUpdatePassword').val() != $('#txtConfirmPassword').val()) {
+			ok = false;
+			$('#txtConfirmPassword').parent('div').append('<span id="spnMatch" class="spanConfirm" style="color:#b94a48;">Passwords Don\'t Match</span>');
+			$('#txtUpdatePassword').parents('.form-group').addClass('has-error');
+			$('#txtConfirmPassword').parents('.form-group').addClass('has-error');
+		}
+		else {
+			//Check Password 
+			if ($('#txtUpdatePassword').val().replace(/\s/g, '') != "") {
+				if ($('#txtUpdatePassword').val().length <= 7) {
+					ok = false;
+					$('#txtConfirmPassword').parent('div').append('<span id="spnMatch" class="spanConfirm" style="color:#b94a48;">Password must contain at least 8 characters</span>');
+					$('#txtUpdatePassword').parents('.form-group').addClass('has-error');
+					$('#txtConfirmPassword').parents('.form-group').addClass('has-error');
+				}
+				else {
+					$('#txtUpdatePassword').parents('.form-group').removeClass('has-error');
+					$('#txtConfirmPassword').parents('.form-group').removeClass('has-error');
+					$("#spnMatch").remove();
+				}
+			}
+			else {
+				$('#txtUpdatePassword').parents('.form-group').removeClass('has-error');
+				$('#txtConfirmPassword').parents('.form-group').removeClass('has-error');
+				$("#spnMatch").remove();
+			}
+		}
+
+
+
+		if (!ok) {
+			BootsAlert("danger", "Error", "Please complete all required fields. \n" + lacking, "", "divAlert", "");
+		}
+		return ok;
+	}
+	function validateEmail(sEmail) {
+		var filter = /^(([^<>()\[\]\.,;:\s@@\"]+(\.[^<>()\[\]\.,;:\s@@\"]+)*)|(\".+\"))@@(([^<>()[\]\.,;:\s@@\"]+\.)+[^<>()[\]\.,;:\s@@\"]{2,})$/i;
+		if (filter.test(sEmail)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+		return false;
+	}
+</script>
+

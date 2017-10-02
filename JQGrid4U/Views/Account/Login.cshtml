@@ -1,0 +1,238 @@
+﻿@model JQGrid4U.Models.LoginViewModel
+@{
+	ViewBag.Title = "Sign in";
+}
+<!doctype html>
+<html>
+<head>
+	<!-- CSS -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link href="~/Scripts/bootstrap-3.3.7/css/fonts.googleapis.css" rel="stylesheet" />
+	<link href="~/Scripts/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="~/Scripts/bootstrap-3.3.7/css/bootstrap-theme.css" rel="stylesheet" />
+	
+	<link rel="stylesheet" href="~/css/assets/font-awesome/css/font-awesome.min.css">
+	<link href="~/css/form-elements.css" rel="stylesheet" />
+	<link rel="stylesheet" href="~/css/assets/css/style.css">
+	<link href="~/css/style.css" rel="stylesheet" />
+	<title>DXTA Monitoring - @ViewBag.Title</title>
+</head>
+<body>
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+	<!-- Top content -->
+	<nav class="navbar navbar-default navbar-static-top example6">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar6">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand text-hide navbar-left" href="~/Dboard">
+				</a>
+			</div>
+		</div>
+	</nav>
+	<div class="container body-content" style="padding-top:90px;">
+		<div class="row">
+			<div class="col-sm-6 col-sm-offset-3 form-box">
+				<div class="form-top">
+					<div class="form-top-left">
+					</div>
+					<div class="form-top-right">
+						<i class="fa fa-key"></i>
+					</div>
+				</div>
+				<div class="form-bottom">
+					<section id="loginForm" style="visibility:hidden;">
+						@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login-form", role = "form" }))
+						{
+							@Html.AntiForgeryToken()
+							
+							@Html.ValidationSummary(true)
+							if (Request.QueryString["Sessiontimeout"] == "true")
+							{
+								<div class="validation-summary-errors">
+									<ul>
+										<li>Your session has timed out due to inactivity. Please log in again.</li>
+									</ul>
+								</div>
+							}
+							<div class="form-group">
+								@Html.LabelFor(m => m.UserName, new { @class = "sr-only", @for = "form-email" })
+								@Html.TextBoxFor(m => m.UserName, new { @class = "form-email form-control", @id = "form-email", @name = "form-email", @placeholder = "Email address...", @type = "text" })
+								@Html.ValidationMessageFor(m => m.UserName, "Email address is required")
+								@*AccountViewModels.cs change the message there*@
+							</div>
+
+							<div class="form-group">
+								@Html.LabelFor(m => m.Password, new { @class = "sr-only", @for = "form-password" })
+								@Html.PasswordFor(m => m.Password, new { @class = "form-password form-control", @id = "form-password", @name = "form-password", @placeholder = "Password...", @type = "password" })
+								@Html.ValidationMessageFor(m => m.Password, "Password is required")
+							</div>
+							<button type="submit" class="btn">Sign in</button>
+
+						}
+					</section>
+
+					<div id="timer" style="visibility:visible;"></div>
+				</div>
+			</div>
+		</div>
+		<div id="delay" style="color:red;visibility:hidden;">0</div>
+	</div>
+</body>
+</html>
+
+<script src="~/Scripts/json2.js"></script>
+<script>
+
+	function formatDate(date) {
+		var d = new Date(date),
+			month = '' + (d.getMonth() + 1),
+			day = '' + d.getDate(),
+			year = d.getFullYear();
+		hours = d.getHours();
+		minutes = d.getMinutes();
+		second = d.getSeconds();
+
+		if (month.length < 2) month = '0' + month;
+		if (day.length < 2) day = '0' + day;
+
+		return [year, month, day, hours, minutes, second ].join('-');
+	}
+
+
+	function getJSON(url) {
+		var resp;
+		var xmlHttp;
+
+		resp = '';
+		xmlHttp = new XMLHttpRequest();
+
+		if (xmlHttp != null) {
+			xmlHttp.open("GET", url, false);
+			xmlHttp.send(null);
+			resp = xmlHttp.responseText;
+		}
+
+		return resp;
+	}
+
+
+	//var obj = JSON.parse('{ "name":"John", "age":30, "city":"New York"}');
+	var obj2;
+	var myValue;
+	var gjson;
+	var res ;
+	gjson = getJSON('selectfailedcounter');
+	//alert(gjson);
+//	alert(gjson.length);
+	//alert(gjson.substring(1, 159));
+	//alert(gjson.substr(8, 1));
+	if (gjson.substr(8, 1) == ",") {
+		myValue = gjson.substring(7, 1)
+		obj2 = JSON.parse(gjson.substring(1, 143));
+	}
+
+	if (gjson.substr(9, 1) == ",") {
+		myValue = gjson.substr(7, 2)
+		obj2 = JSON.parse(gjson.substring(1, 144));
+	}
+
+
+
+	if (gjson.substr(10, 1) == ",") {
+		myValue = gjson.substring(7, 3)
+		obj2 = JSON.parse(gjson.substring(1, 145));
+	}
+
+
+
+	if (gjson.substr(11, 1) == ",") {
+		myValue = gjson.substring(7, 4)
+		obj2 = JSON.parse(gjson.substring(1, 146));
+	}
+
+	document.getElementById("delay").innerHTML = obj2.ID;
+
+	//alert(myValue);
+
+//		res = obj1.ID;
+
+	//var obj1 = JSON.parse(gjson.substring(1, 160));
+
+
+//	document.getElementById("loginForm").style.visibility = "visible";
+//	var vDate1 = document.getElementById("duetime").innerHTML;
+//	vDate1 = vDate1.substring(14, 33);
+	vDate1 = new Date();
+	//alert(vDate1);
+
+	vDate1.setSeconds(vDate1.getSeconds() + obj2.ID);
+
+	//var countDownDate = new Date("Aug 29, 2017 16:43:40").getTime();
+	var countDownDate = new Date(vDate1).getTime(obj2.ID);
+
+//alert(formatDate(countDownDate));
+
+
+	//var countDownDate2 = document.getElementById("duetime").innerHTML;
+	//alert(countDownDate2);
+
+
+	// Update the count down every 1 second
+	var x = setInterval(function () {
+
+		// Get todays date and time
+		var now = new Date().getTime();
+
+		// Find the distance between now an the count down date
+		var distance = countDownDate - now;
+		//alert(countDownDate);
+
+		// Time calculations for days, hours, minutes and seconds
+		var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+		var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+		// Output the result in an element with id="demo"
+		document.getElementById("timer").innerHTML ="Security Timer Delay : " +  days + "d " + hours + "h "
+			+ minutes + "m " + seconds + "s ";
+
+
+
+		//alert($("#duetime").val);
+
+		// If the count down is over, write some text
+		if (distance < 0) {
+			clearInterval(x);
+			document.getElementById("loginForm").style.visibility = "visible";
+
+			document.getElementById("timer").innerHTML = "";
+			//document.getElementById("duetime").visibility = "hidden";
+			//document.getElementById("duetime").innerHTML = "";
+		}
+	}, 800);
+
+
+
+
+
+
+
+</script>
+
+
+<!-- Javascript -->
+@*<script src="~/css/assets/js/jquery-1.11.1.min.js"></script>
+<script src="~/css/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="~/css/assets/js/jquery.backstretch.min.js"></script>
+<script src="~/css/assets/js/scripts.js"></script>*@
