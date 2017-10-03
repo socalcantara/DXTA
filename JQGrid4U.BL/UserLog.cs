@@ -16,6 +16,8 @@ namespace JQGrid4U.BL
 		public string IPadd { get; set; }
 	}
 
+    // UPDATED OCT 03, 2017 BY ACS
+
 	public class UserLogBusinessLogic
 	{
 		string conStr = ConfigurationManager.ConnectionStrings["DBConnection"].ConnectionString;	
