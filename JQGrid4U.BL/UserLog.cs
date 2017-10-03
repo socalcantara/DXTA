@@ -16,7 +16,7 @@ namespace JQGrid4U.BL
 		public string IPadd { get; set; }
 	}
 
-    // UPDATED OCT 03, 2017 BY ACS
+    // Deleted
 
 	public class UserLogBusinessLogic
 	{
