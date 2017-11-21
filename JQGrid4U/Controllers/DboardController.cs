@@ -4,14 +4,18 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using JQGrid4U.BL;
+using System.Text;
 
 namespace JQGrid4U.Controllers
 {
-	public class DboardController : Controller
+    [SessionExpire]
+    public class DboardController : Controller
 	{
 		DashBoardBusinessLogic DashBoardBL = new DashBoardBusinessLogic();
-		[SessionExpire]
-		public ActionResult Index()
+        UserBusinessLogic Users = new UserBusinessLogic();
+
+        
+        public ActionResult Index()
 		{
 			if (Session["user"] == null)
 			{
@@ -26,9 +30,11 @@ namespace JQGrid4U.Controllers
 			}
 		}
 		//Get Dashboard List
-		public JsonResult SelectDashBoard()
+		public JsonResult SelectDashBoard(int UserID = 0)
 		{
-			return Json(DashBoardBL.DashBoards.ToList(), JsonRequestBehavior.AllowGet);
+            List<int> listofSites = new List<int>();
+            listofSites.AddRange(Users.UserSub.Where(x => x.userID == UserID).Select(x => x.siteID).ToList());
+			return Json(DashBoardBL.DashBoards.Where(x => listofSites.Contains(x.siteID)).ToList(), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpPost]

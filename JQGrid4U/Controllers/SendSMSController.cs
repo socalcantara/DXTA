@@ -13,7 +13,7 @@ using System.IO.Ports;
 
 namespace JQGrid4U.Controllers
 {
-	public class SendSMSController : Controller
+    public class SendSMSController : Controller
 	{
 
 
@@ -24,8 +24,8 @@ namespace JQGrid4U.Controllers
 
 
 
-
-		public ActionResult Index()
+        [SessionExpire]
+        public ActionResult Index()
 		{
 
 

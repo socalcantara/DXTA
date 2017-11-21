@@ -33,39 +33,17 @@
 				</a>
 			</div>
 			<div id="navbar6" class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li><a href="~/Dboard">Home</a></li>
-					@*<li><a href="#">About</a></li>
-					<li><a href="#">Contact</a></li>*@
-					@*<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Reports<span class="caret"></span></a>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="~/Graphdata">Graphs</a></li>
-							<li><a href="#">Another action</a></li>
-							<li><a href="#">Something else here</a></li>
-							<li class="divider"></li>
-							<li class="dropdown-header">Nav header</li>
-							<li><a href="#">Separated link</a></li>
-							<li><a href="#">One more separated link</a></li>
-						</ul>
-					</li>*@
+				<ul class="nav navbar-nav" id="menu">
+					@*<li><a href="~/Dboard">Home</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Utility <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="~/UserManagement">Users List</a></li>
-							
 							<li><a href="~/SendMailer">Send Email Alert</a></li>
 							<li><a href="~/SendSMS">Send SMS Alert</a></li>
 							<li><a href="~/Account/Parameters">Parameter</a></li>
-                       
-							@*<li><a href="#">Another action</a></li>
-								<li><a href="#">Something else here</a></li>
-								<li class="divider"></li>
-								<li class="dropdown-header">Nav header</li>
-								<li><a href="#">Separated link</a></li>
-								<li><a href="#">One more separated link</a></li>*@
 						</ul>
-					</li>
+					</li>*@
 				</ul>
 				@Html.Partial("_LoginPartial")
 			</div>
@@ -100,23 +78,37 @@
 	}
 </body>
 </html>
-<script>
-
+<script type="text/javascript">
+    var UserID = @Session["userID"].ToString();
 	$(document).ready(function () {
-		$("input[type='search']").keyup(function () {
+        $("input[type='search']").keyup(function () {
 
-			if ($(this).val() !== '') {
-				$(this).css('background-color', '#faffbd')
-			} else {
-				$(this).css('background-color', '#fff')
-			}
+            if ($(this).val() !== '') {
+                $(this).css('background-color', '#faffbd')
+            } else {
+                $(this).css('background-color', '#fff')
+            }
+        });
 
-		});
-	});
+
+    });
+    //roleid Admin,Staff,Common USer and etc.
+    $.ajax({
+        url: '/Home/buildMenu',
+        type: 'GET',
+        data: { UserID: UserID },
+        success: function (data) {
+            $('#menu').append(data.toString());
+
+        }
+    });
+
+    var rowNo = @Convert.ToInt32(Session["rowfilter"]);
+
 	var baseUrl = '@Url.Content("~/")';
 	var sessionTimeoutWarning = @Session.Timeout;
 	var sTimeout = parseInt(sessionTimeoutWarning) * 60 * 1000;
-	var t;
+    var t;
 	//window.onload = resetTimer;
 	// DOM Events
 	document.onmousemove = resetTimer;
@@ -139,7 +131,52 @@
 		// 1000 milisec = 1 sec
 	}
 </script>
+<style>
+    .dropdown-submenu {
+        position: relative;
+    }
 
+        .dropdown-submenu > .dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: -6px;
+            margin-left: -1px;
+            -webkit-border-radius: 0 6px 6px 6px;
+            -moz-border-radius: 0 6px 6px;
+            border-radius: 0 6px 6px 6px;
+        }
 
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
 
+        .dropdown-submenu > a:after {
+            display: block;
+            content: " ";
+            float: right;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+            border-width: 5px 0 5px 5px;
+            border-left-color: #ccc;
+            margin-top: 5px;
+            margin-right: -10px;
+        }
 
+        .dropdown-submenu:hover > a:after {
+            border-left-color: #fff;
+        }
+
+        .dropdown-submenu.pull-left {
+            float: none;
+        }
+
+            .dropdown-submenu.pull-left > .dropdown-menu {
+                left: -100%;
+                margin-left: 10px;
+                -webkit-border-radius: 6px 0 6px 6px;
+                -moz-border-radius: 6px 0 6px 6px;
+                border-radius: 6px 0 6px 6px;
+            }
+</style>

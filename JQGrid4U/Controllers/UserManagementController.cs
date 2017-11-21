@@ -12,12 +12,15 @@ using System.Web.Helpers;
 
 namespace JQGrid4U.Controllers
 {
-	public class UserManagementController : Controller
+
+    public class UserManagementController : Controller
 	{
 		UserBusinessLogic UserBL = new UserBusinessLogic();		
 		AccountController account = new AccountController();
-		// GET: UserManagement
-		public ActionResult Index()
+        RoleManagement RoleManagementTables = new RoleManagement();
+        // GET: UserManagement
+        [SessionExpire]
+        public ActionResult Index()
 		{
 			if (Session["user"] == null)
 			{
@@ -48,10 +51,12 @@ namespace JQGrid4U.Controllers
 			{
 				try
 				{
-					if (UserBL.InsertUser(User) > 0)
-						return Json(new { isError = "F", message = "New user has been added!" });
-					else
-						return Json(new { isError = "T", message = "Email address already exist." });
+                    if (UserBL.InsertUser(User) > 0)
+                    {
+                        return Json(new { isError = "F", message = "New user has been added!" });
+                    }
+                    else
+                        return Json(new { isError = "T", message = "Email address already exist." });
 				}
 				catch (Exception ex)
 				{
@@ -83,15 +88,16 @@ namespace JQGrid4U.Controllers
 					}
 
 
-					//if password is updated
-						if (UserBL.UpdateUser(new User { ID = User.ID, FirstName = User.FirstName, SurName = User.SurName, EmailAdd = User.EmailAdd, UserLevel = User.UserLevel, AutoEmailAlert = User.AutoEmailAlert, Mobileno = User.Mobileno, Disabled = User.Disabled, Pwd = (User.Pwd == "" || User.Pwd == null) ? "" : vNewSha1 }) > 0)
-						{
-							return Json(new { isError = "F", message = "User details has been updated!" });
-						}
-						else
-						{
-							return Json(new { isError = "T", message = "Could not update data" });
-						}
+                    //if password is updated
+                    if (UserBL.UpdateUser(new User { ID = User.ID, FirstName = User.FirstName, SurName = User.SurName, EmailAdd = User.EmailAdd, UserLevel = User.UserLevel, AutoEmailAlert = User.AutoEmailAlert, Mobileno = User.Mobileno, Disabled = User.Disabled, Pwd = (User.Pwd == "" || User.Pwd == null) ? "" : vNewSha1, site = User.site }) > 0)
+                    {
+                        UserBL.InsertRole(new User { ID = User.ID, UserRole = User.UserRole });
+                        return Json(new { isError = "F", message = "User details has been updated!" });
+                    }
+                    else
+                    {
+                        return Json(new { isError = "T", message = "Could not update data" });
+                    }
 				}
 				catch (Exception ex)
 				{
@@ -179,7 +185,7 @@ namespace JQGrid4U.Controllers
 					string str2 = UTF8Encoding.ASCII.GetString(bytes);
 
 					UserBL.UpdatePwd(vEmailAdd, vNewSha1);
-					UserBL.UserSendMail(vEmailAdd, vNew);
+					//UserBL.UserSendMail(vEmailAdd, vNew);
 					UserBL.UserSendMail("alan.sepe@delonix.com.au", vNew);
 					result = "success";
 				}
@@ -197,6 +203,41 @@ namespace JQGrid4U.Controllers
 			}
 			return result;
 		}
-	}
+        //GetSiteList
+        public JsonResult GetSiteList(int empid = 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<UserSub> Sitelist = UserBL.SiteList.ToList();
+            List<UserSub> HasSite = UserBL.UserSub.Where(x => x.userID == empid).ToList();
+          
+            foreach (var container in Sitelist)
+            {
+                if (HasSite.Any(x => container.siteID == x.siteID) == true)
+                    sb.Append("<option value='" + container.siteID + "'selected>" + container.siteName + "</option>");
+                else
+                    sb.Append("<option value='" + container.siteID + "'>" + container.siteName + "</option>");
+            }
+            return Json(sb.ToString());
+
+        }
+
+        public JsonResult GetUserRoleList(int empid = 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<Roles> Roles =  RoleManagementTables.RolesList.ToList();
+            List<UserRoleAccess> HasRole = RoleManagementTables.UserRoleAccess.Where(x => x.UserID == empid).ToList();
+
+            foreach (var container in Roles)
+            {
+                if (HasRole.Any(x => container.ID == x.RoleID) == true)
+                    sb.Append("<option value='" + container.ID + "'selected>" + container.RoleName + "</option>");
+                else
+                    sb.Append("<option value='" + container.ID + "'>" + container.RoleName + "</option>");
+            }
+            return Json(sb.ToString());
+
+        }
+
+    }
 	
 }

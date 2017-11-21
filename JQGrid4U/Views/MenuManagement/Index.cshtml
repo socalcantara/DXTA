@@ -1,0 +1,260 @@
+﻿
+@{
+    ViewBag.Title = "Menu Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Scripts/DatatableButton/CSS/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/DatatableButton/CSS/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Scripts/bootstrap-3.3.7/css/bootstrapTreeview.css" rel="stylesheet" />
+<script src="~/Scripts/DatatableButton/Script/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/bootstrap-3.3.7/js/bootstrapTreeview.js"></script>
+
+<script src="~/Scripts/Jtree/dist/jstree.js"></script>
+<link href="~/Scripts/Jtree/dist/themes/proton/style.css" rel="stylesheet" />
+<script src="~/Scripts/BootsAlert.js"></script>
+
+
+<div class="container-fluid">
+    <fieldset>
+        <legend>
+            <h3><b>Menu Management</b></h3>
+        </legend>
+    </fieldset>
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="panelAlert">
+                    </div>
+
+                    <div style="padding: 10px; height: auto;" id="tree3">
+
+                        <ul id="list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="modalValidator" data-toggle="validator" role="form">
+        <div class="modal fade" id="MenuTreeModal" role="dialog">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title for-edit-user">
+                            Menu
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="divAlert">
+                        </div>
+                        <div class="form-horizontal">
+                            <div id="row">
+                                <div class="form-group">
+                                    <label for="firstLevelMenuName" class="control-label col-sm-3">
+                                        Menu Name
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="txtMenuName" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="firstLevelMenuLink" class="control-label col-sm-3">
+                                        Menu Link
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="txtMenuLink" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer form-group">
+                        <button type="button" id="btnSaveMenu" class="btn btn-primary">
+                            Save
+                        </button>
+                        <button type="button" class="btn btn-default close-button" data-dismiss="modal">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        getListMenu();
+        ActivateButtons();
+    });
+
+
+    function getListMenu() {
+        $.ajax({
+            type: "POST",
+            url: "/MenuManagement/UserMenus",
+            success: function (res) {
+                $("#list").html(res);
+                $('#tree3').treed({ openedClass: 'glyphicon-chevron-down', closedClass: 'glyphicon-chevron-right' });
+                $('[data-toggle="tooltip"]').tooltip();
+
+                //Edit Menu Details
+                $(".editmodal").click(function () {
+                    var menudid = $(this).attr("editmenuID");
+                    $.ajax({
+                        type: "POST",
+                        url: "/MenuManagement/GetMenuDetails",
+                        data: { menuid: menudid },
+                        success: function (res) {
+                            $("#txtMenuName").val(res.MenuText);
+                            $("#txtMenuName").attr("menuid", menudid);
+
+                            $("#txtParentName").val(res.ParentID);
+                            $("#txtMenuLink").val(res.Link);
+                        }
+                    });
+                    $("#MenuTreeModal").modal({
+                        modal: true, backdrop: 'static', keyboard: false
+                    });
+                });
+
+                //Add Parent Menu
+                $(".glyphicon-plus").click(function () {
+                    $(this).parents().removeClass('has-error');
+                    var param = {
+                        //MenuText: $('#parentMenu').val()
+                        MenuText: $(this).parent().find("input[type='text']").val(),
+                        ParentID: $(this).attr('parentid') == "null" ? 0 : $(this).attr('parentid')
+                    }
+                    if ($(this).parent().find("input[type='text']").val().replace(/\s/g, '') == "") {
+                        $(this).parent().addClass('has-error');
+                        $("#panelAlert").html("<div class='alert alert-danger'><strong>Error: </strong>Fill out the input box.</div>");
+                    }
+                    else
+                    {
+                        $.ajax({
+                            type: "Post",
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: "json",
+                            url: "/MenuManagement/InsertNewMenu",
+                            data: JSON.stringify(param),
+                            success: function (res) {
+                                if (res.isError != "T") {
+                                    $("#panelAlert").html("<div class='alert alert-success'><strong>Success: </strong>The menu has been added successfully.</div>");
+                                    getListMenu();
+                                }
+                                else {
+                                    $("#panelAlert").html("<div class='alert alert-danger'><strong>Error: </strong>Fill out the input box.</div>");
+                                }
+                            }
+                        });
+                    }
+                });
+
+                //$(".glyphicon-plus").click(function () {
+                //    var param = {
+                //        MenuText: $(this).parents().find("input[type='text']").val(),
+                //        ParentID: $(this).attr('parentid')
+                //    }
+                //    $.ajax({
+                //        type: "Post",
+                //        contentType: 'application/json; charset=utf-8',
+                //        dataType: "json",
+                //        url: "/MenuManagement/InsertNewMenu",
+                //        data: JSON.stringify(param),
+                //        success: function (res) {
+                //            if (res.isError != "T") {
+                //                BootsAlert("success", "Success", res.message, "", "divAlert", "");
+                //                getListMenu();
+                //            }
+                //            else {
+                //                BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+                //                $("#btnAddUser").prop("disabled", false);
+                //            }
+                //        }
+                //    });
+                //    //alert($(this).parents().parents().find('<a>').attr('id'));
+                //});
+
+                //SAve Updated Menu
+                $("#btnSaveMenu").click(function () {
+                    var param = {
+                        MenuText: $('#txtMenuName').val(),
+                        menuID: $('#txtMenuName').attr('menuid'),
+                        Link: $('#txtMenuLink').val()
+                    }
+                    $.ajax({
+                        type: "Post",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        url: "/MenuManagement/UpdateMenu",
+                        data: JSON.stringify(param),
+                        success: function (res) {
+                            if (res.isError != "T") {
+                                BootsAlert("success", "Success", res.message, "", "divAlert", "");
+                                getListMenu();
+                            }
+                            else {
+                                BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+                                $("#btnAddUser").prop("disabled", false);
+                            }
+                        }
+                    });
+                    alert($(this).parents().parents().find('<a>').attr('id'));
+                });
+
+                //Delete Menu Tree
+                $(".Deletemenu").click(function () {
+                    $.ajax({
+                        type: "Post",
+                        dataType: "json",
+                        url: "/MenuManagement/DeleteMenu",
+                        data: { menuID: $(this).attr('menuID') },
+                        success: function (res) {
+                            if (res.isError != "T") {
+                                BootsAlert("success", "Success", res.message, "", "divAlert", "");
+                                getListMenu();
+                            }
+                            else {
+                                BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+                                $("#btnAddUser").prop("disabled", false);
+                            }
+                        }
+                    });
+                });
+
+            }
+        });
+    }
+</script>
+<style>
+    i.glyphicon-remove {
+        color: #d96b6b;
+        cursor: pointer;
+    }
+
+    i.glyphicon-plus {
+        cursor: pointer;
+        color: #000000;
+    }
+
+    i.glyphicon-pencil {
+        cursor: pointer;
+        color: #000000;
+    }
+
+    i.glyphicon-chevron-right {
+        color: #000000;
+    }
+
+    i.glyphicon-chevron-down {
+        color: #000000;
+    }
+</style>
+

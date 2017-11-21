@@ -73,6 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRepositoryContainer.cs" />
     <Compile Include="Repositories\User.cs" />
+    <Compile Include="RoleManagement.cs" />
     <Compile Include="User.cs" />
     <Compile Include="UserLog.cs" />
     <Compile Include="UserLogFail.cs" />

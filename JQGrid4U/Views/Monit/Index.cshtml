@@ -4,25 +4,32 @@
 }
 <link href="~/Scripts/DatatableButton/CSS/bootstrap.min.css" rel="stylesheet" />
 <link href="~/Scripts/DatatableButton/CSS/dataTables.bootstrap.min.css" rel="stylesheet" />
-<link href="~/Scripts/DatatableButton/CSS/buttons.bootstrap.min.css" rel="stylesheet" />
+@*<link href="~/Scripts/DatatableButton/CSS/buttons.bootstrap.min.css" rel="stylesheet" />*@
+<link href="~/Scripts/DatatableButton/CSS/responsive.bootstrap.min.css" rel="stylesheet" />
 
+<script src="~/Scripts/waitingDialog.js"></script>
 <script src="~/Scripts/DatatableButton/Script/jquery.dataTables.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/dataTable.bootstrap.min.js"></script>
+
 <script src="~/Scripts/DatatableButton/Script/dataTables.buttons.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/datatable.responsive.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/jszip.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/pdfmake.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/vfs_fonts.js"></script>
 <script src="~/Scripts/DatatableButton/Script/buttons.html5.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/buttons.print.min.js"></script>
+<script src="~/Scripts/DatatableButton/Script/datetime.js"></script>
+<script src="~/Scripts/BootsAlert.js"></script>
+<script src="~/Scripts/jquery.tristate.js"></script>
 
 
 <div class="container">
-	<fieldset>
-		<legend>
-			<h3><a href="~/Dboard"><label id="lblSiteName" style="color:black;"></label></a></h3>
-		</legend>
-	</fieldset>
+    <fieldset>
+        <legend>
+            <h3><a href="~/Dboard"><label id="lblSiteName" style="color:black;"></label></a></h3>
+        </legend>
+    </fieldset>
 	<div class="row" style="margin-top:-10px;">
 		<div class="col-lg-12">
 			<div class="dropdown">
@@ -35,14 +42,15 @@
 				<input type="checkbox" class="checkBoxClass" id="chkOk" name="OK" value="OK" />&nbsp;OK
 				<input type="checkbox" class="checkBoxClass" id="chkWarning" name="Warning" value="Warning" />&nbsp;Warning
 				<input type="checkbox" class="checkBoxClass" id="chkCritical" name="Critical" value="Critical" />&nbsp;Critical
+                <input type="checkbox" class="chkAcknow" id="chkAcknow" name="Acknow" value="Acknow"  />&nbsp;Acknowledged
 				@*<a href="@Url.Action("ExportToExcel")" class="btn btn-default">Export</a>*@
 			</div>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-lg-12">
-			<div class="panel panel-default setwidth" style="margin-top:10px">
-				<div class="panel-body">
+			<div class="panel panel-default setwidth" style="margin-top:10px; min-width:auto;">
+				<div class="panel-body" style="min-width:auto;">
 					@*<div class="row" style="margin-left:-20px;">
 						<div class="col-lg-12">
 							<div id="buttons"></div>
@@ -58,6 +66,9 @@
 											<th style="text-align:center; font-size:large;">Type</th>
 											<th style="text-align:center; font-size:large;">ID</th>
 											<th style="text-align:center; font-size:large;">Last Change</th>
+                                            <th style="text-align:center; font-size:large;">Change Noted</th>
+                                            <th style="text-align:center; font-size:large;">Fixed</th>
+                                            <th>&nbsp;</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -70,6 +81,186 @@
 		</div>
 	</div>
 </div>
+@********FIX MODAL*********@
+<div class="modal fade" id="UserModal" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="btnFixClose" class="close" data-dismiss="modal">
+                    &times;
+                </button>
+                <h4 class="modal-title for-test-email">
+                    Replace/Repair Device
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="divAlert">
+                </div>
+                <div class="form-horizontal">
+                    <div id="row">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="txtSurname">
+                                Device ID:
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control required" readonly="readonly" id="txtDeviceID" title="Device ID" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="txtSurname">
+                                Device Type:
+                            </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" id="txtDeviceType" title="Device Type" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">
+                                Note:
+                            </label>
+                            <div class="col-sm-9">
+                                <textarea type="text" multiple="5" class="form-control required" id="txtNoteFix" title="User Note"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="txtSurname">
+                                Fixed:
+                            </label>
+                            <div id="fixDev" class="col-sm-9">
+
+                                @*<form name="myFormRadio">*@
+                                <label class="control-label">
+                                    <input type="radio" name="fixed" value="2" class="isFixed">&nbsp;Repaired
+                                    <input type="radio" name="fixed" value="3" class="isFixed">&nbsp;Replaced
+                                </label>
+                                @*</form>*@
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="txtSurname">
+                                Serial No:
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control required" readonly="readonly" id="txtSerial" title="Serial No">
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer form-group">
+                <button type="button" id="btnSave" class="btn btn-primary">
+                    Save
+                </button>
+
+                <button type="button" id="btnFixCancel" class="btn btn-default close-button" data-dismiss="modal">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*MODAL FOR ACKNOWLEDGEMENT*@
+<div class="modal fade" id="AckModal" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="btnCloseNote" type="button" class="close" data-dismiss="modal">
+                    &times;
+                </button>
+                <h4 class="modal-title for-add-notes AddNote">
+                    Acknowledge Device Status Change
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="NotedivAlert">
+                </div>
+                <div class="form-horizontal">
+                    <div id="row">
+                        <div class="form-group for-acknowledge">
+                            <label class="control-label col-sm-3">
+                                Device ID:
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" id="txtNoteDeviceID" class="form-control required" title="Device ID" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">
+                                Note:
+                            </label>
+                            <div class="col-sm-9">
+                                <textarea type="text" multiple="5" class="form-control required" id="txtNote" title="User Note"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer form-group">
+                <button type="button" id="btnSaveNoteAck" class="btn btn-primary btnSaveNote" modalid="AckModal">
+                    Save
+                </button>
+                <button type="button" id="btnSaveNoteAdd" class="btn btn-primary btnSaveNote" modalid="AckModal">
+                    Save
+                </button>
+                <button type="button" id="btnCancel" class="btn btn-default close-button" data-dismiss="modal">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@**********MODAL FOR NOTES*********@
+<div class="modal fade" id="AckModalListNotes" role="dialog">
+    @*style="overflow-y: scroll; max-height:85%; overflow-x:hidden;"*@
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="btnCloseListNotes" type="button" class="close" data-dismiss="modal">
+                    &times;
+                </button>
+                <h4 class="modal-title for-test-email">
+                    Device Notes
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="divNoteListAlert">
+                </div>
+                <div class="form-horizontal">
+                    <div id="row">
+                        <div class="form-group">
+                            <table class="table table-responsive table-striped table-bordered" id="tblListNotes">
+                                <thead style="color:ivory;" class="navbar-inverse">
+                                    <tr>
+                                        <th>Date Entered</th>
+                                        <th>Entered by</th>
+                                        <th>Type</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer form-group">
+                <a data-toggle="modal" href="#AckModal" id="btn_addNote" class="btn btn-primary">Add New</a>
+                <button type="button" id="btnCancel" class="btn btn-default close-button" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="str_site" class='@(Request.QueryString["site"] != null ? Request.QueryString["site"] : null)'> </div>
 <div id="str_type" class='@(Request.QueryString["type"] != null ? Request.QueryString["type"] : null)'> </div>
@@ -79,8 +270,9 @@
 		<script type="text/javascript">
 			var sitename = $('#str_sitename').attr('class');
 			var con_type = $('#str_type').attr('class');
-			var table;
-			setInterval(function () { table.ajax.reload(null, false); }, 5000);
+            var table,tableListNotes;
+            var Acknow;
+			//setInterval(function () { table.ajax.reload(null, false); }, 5000);
 			$.fn.dataTable.ext.type.detect.unshift(
 				function (d) {
 					return d === 'OK' || d === 'Warning' || d === 'Critical' ?
@@ -100,9 +292,9 @@
 
 			$(document).ready(function () {
 				$('#lblSiteName').text(sitename);
-				$("#conveyors option[value='" + con_type + "']").prop("selected", true);
+                $("#conveyors option[value='" + con_type + "']").prop("selected", true);
 
-				GetData($('#str_site').attr('class'), $('#str_type').attr('class'), $('#str_status').attr('class'));
+                GetData($('#str_site').attr('class'), $('#str_type').attr('class'), $('#str_status').attr('class'), "0");
 				if ($('#str_status').attr('class').toLowerCase() == 'ok') {
 					$('#chkOk').prop('checked', true);
 				}
@@ -114,19 +306,22 @@
 				}
 				else {
 					$('.checkBoxClass').prop('checked', true);
-				}
+                }
+                
 			});
-			function GetData(siteID, type, status) {
+            function GetData(siteID, type, status, Acknow) {
+                
 				//buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
 				table = $('#tblMonitoring').DataTable({
 					//lengthChange: false,
-					//bSort: false,
-					stateSave: true,
-					"bAutoWidth": false,
+                    //bSort: false,
+                    destroy: true,
+                    "iDisplayLength": rowNo,
+                    "bAutoWidth": false,
 					ajax: {
 						url: "/Monit/SelectMonitParam",
-						dataSrc: '',
-						data: { siteid: siteID, type: type, status: status }
+                        dataSrc: '',
+                        data: { siteid: siteID, type: type, status: status, Acknow: Acknow }
 					},
 					"fnRowCallback": function (nRow, aData, iDisplayIndex) {
 						$('td:eq(2)', nRow).html('<a href="/ChartJS?deviceid=' + aData.ID + '&status=' + aData.Status + '&sitename=' + aData.siteName + '">' + aData.ID + '</a>');
@@ -134,18 +329,49 @@
 							$('td:eq(0)', nRow).addClass('Warning');
 						}
 						if (aData.Status == "OK") {
-							$('td:eq(0)', nRow).addClass('OK');
+                            $('td:eq(0)', nRow).addClass('OK');
+                            //Disable Device OK
+                            $('td:eq(4)', nRow).find("input[type='checkbox']").attr('disabled', true);
+                            $('td:eq(5)', nRow).find("input[type='checkbox']").attr('disabled', true);
+                            $('td:eq(6)', nRow).find("img").prop('disabled', true);
 						}
 						if (aData.Status == "Critical") {
 							$('td:eq(0)', nRow).addClass('Critical');
-						}
+                        }
+
+                        if (aData.isAck == "1") {
+                            $('td:eq(4)', nRow).find("input[type='checkbox']").attr('checked', true);
+                            $('td:eq(4)', nRow).find("input[type='checkbox']").attr('disabled', 'disabled');
+                        }
+                       
 						return nRow;
 					},
 					"columns": [
 						{ data: "Status" },
 						{ data: "Typ" },
-						{ data: "ID", className: "alink" },
-						{ data: "Laps" }
+                        { data: "ID", className: "alink" },
+                        { data: "Laps" },
+                        {
+                            data: null,
+                            "bSortable": false,
+                            "mRender": function (o) {
+                                return '<input type="checkbox" id=chk' + o.ID + ' deviceID=' + o.ID + ' typ=' + o.Typ + ' serialno=' + o.serialNo + ' title="Acknowledge change of status" class="AckChange" />';
+                            }
+                        },
+                        {
+                            data: null,
+                            "bSortable": false,
+                            "mRender": function (o) {
+                                return '<input type="checkbox"  id=fx' + o.ID + ' deviceID=\"' + o.ID + '\" typ=\"' + o.Typ + '\" serialno=\"' + o.serialNo + '\" note=\"' + o.Note + '\" class="fixDevice" />';
+                            }
+                        },
+                        {
+                            data: null,
+                            "bSortable": false,
+                            "mRender": function (o) {
+                                return '<img id=' + o.ID + ' src=../../images/notebook.png class="btnImage" title="Notes" ' + ' serialno=\"' + o.serialNo + '\" />';
+                            }
+                        }
 					],
 					"columnDefs": [{
 						"type": "salary-grade",
@@ -165,43 +391,307 @@
 				//		{ extend: 'csv' , className: 'btn btn-default' }
 				//	]
 				//}).container().appendTo($('#tblMonitoring_wrapper .col-sm-6:eq(0)'));
-			}
+            }
 
-			$(function () {
+            //Link URL (ID)
+            $(function () {
+
+
 				$('#tblMonitoring tbody').on('click', 'td', function () {
-					if ($(this).index() == 2) {
-						window.location.href = $(this).find("a[href]").attr('href');
-					}
+                    if ($(this).index() == 2) {
+                        window.location.href = $(this).find("a[href]").attr('href');
+                    }
 
 				});
-				var options = [];
-			});
-			$('#btn_export').click(function () {
-				$.ajax({
-					type: "POST",
-					url: "/Monit/ExportToExcel",
-					success: function (data) { },
-					error: function (xhr, ajaxOptions, thrownError) {
-						alert(xhr.status); alert(thrownError);
-					}
-				});
-			});
+				//var options = [];
+                var cur_serial;
+                var fixCheckboxID;
 
+                //Click Checkbox. Open Modal Fix Device
+                $('#tblMonitoring tbody').on('click', '.fixDevice', function () {
+                    $("#btnSave").prop("disabled", false);
+                    $("#divAlert").html("<div id='forAlert'></div>");
+                    $("#UserModal").modal({
+                        modal: true, backdrop: 'static', keyboard: false
+                    });
+                    $('.form-group').removeClass('has-error');
+                    fixCheckboxID = $(this).attr('id');
+                    $("#txtDeviceType").val($(this).attr('typ'));
+                    $("#txtNoteFix").val("");
+                    $("#txtDeviceID").val($(this).attr('DeviceID'));
+                    $("#txtSerial").val("");
+                    cur_serial = $(this).attr('serialno');
+                    $('input[name=fixed]').attr('checked', false);
+                });
+
+                //Click Cancel
+                $("#btnFixClose,#btnFixCancel").click(function () {
+                    $("#" + fixCheckboxID).prop("checked", false);
+                });
+
+                $("input[type=radio]").on("change", function () {
+                    //alert($('input[name="fixed"]:checked').val());
+                    // == Replaced
+                    if ($('input[name="fixed"]:checked').val() == "3") {
+                        if ($("#txtDeviceType").val() == "Pulley") {
+                            $("#txtSerial").attr("readonly", false);
+                            $("#txtSerial").val("");
+                        }
+                        else {
+                            $("#txtSerial").attr("readonly", true);
+                            $("#txtSerial").val("System Generated");
+                        }
+                    }
+                    else {
+                        $("#txtSerial").attr("readonly", true);
+                        $("#txtSerial").val("");
+                    }
+                });
+                
+                //Save Fixed Details
+                $("#btnSave").click(function () {
+                    waitingDialog.show();
+                    $("#btnSave").prop("disabled", true);
+                    var $checkedElement = $('input[name=fixed]:checked');
+                    var parameter = {
+                        NoteTypeID: $('input[name="fixed"]:checked').val(),
+                        Createdby: UserID,
+                        Serial: ($("#txtSerial").val().replace(/\s/g, '') == "" ? cur_serial : $("#txtSerial").val()),
+                        DeviceID: $("#txtDeviceID").val(),
+                        Typ: $("#txtDeviceType").val(),
+                        Note: $("#txtNoteFix").val(),
+                        userID: UserID,
+                        org_serial: cur_serial
+                    }
+                    setTimeout(function () {
+                        if ($checkedElement.length) {
+                            if (checkValidInput()) {
+                                $('.form-group').removeClass('has-error');
+                                $.ajax({
+                                    dataType: 'json',
+                                    contentType: 'application/json; charset=utf-8',
+                                    type: "POST",
+                                    url: baseUrl + "Monit/LogResolve",
+                                    data: JSON.stringify(parameter),
+                                    success: function (res) {
+                                        if (res.isError != "T") {
+                                            setTimeout(function () { waitingDialog.hide(); }, 3000);
+                                            setTimeout(function () {
+                                                BootsAlert("success", "Success", res.message, "", "divAlert", "");
+                                            }, 3000);
+                                            Click_Filter();
+                                        }
+                                        else {
+                                            waitingDialog.hide();
+                                            BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+                                            $("#btnSave").prop("disabled", false);
+
+                                        }
+                                    }
+                                });
+                            }
+                            else {
+                                waitingDialog.hide();
+                                $("#txtSerial").parents('.form-group').addClass('has-error');
+                                BootsAlert("danger", "Error", "Serial No required.", "", "divAlert", "");
+                                $("#btnSave").prop("disabled", false);
+                            }
+                        }
+                        else {
+                            waitingDialog.hide();
+                            $("#fixDev").parents('.form-group').addClass('has-error');
+                            $("#btnSave").prop("disabled", false);
+                            BootsAlert("danger", "Error", "Please select fix type.", "", "divAlert", "");
+                            $("#btnSave").prop("disabled", false);
+                        }
+                    }, 1000);
+                });
+
+                //Save Notes
+                $(".btnSaveNote").click(function () {
+                    waitingDialog.show();
+                    $(".btnSaveNote").prop("disabled", true);
+                    var buttonID = $(this).attr('id');
+                    var modalID = $(this).attr('modalid');
+                    setTimeout(function () {
+                        var parameter = { Createdby: UserID, DeviceID: $("#txtNoteDeviceID").val(), Note: $("#txtNote").val(), Serial: noteSerial, userID: UserID };
+                        if ($("#txtNote").val().replace(/\s/g, '') != "") {
+                            $.ajax({
+                                dataType: 'json',
+                                contentType: 'application/json; charset=utf-8',
+                                type: "POST",
+                                url: baseUrl + "Monit/LogNoteResolve",
+                                data: JSON.stringify(parameter),
+                                success: function (res) {
+                                    if (res.isError != "T") {
+                                        if (buttonID == "btnSaveNoteAck") {
+                                            $('.form-group').removeClass('has-error');
+                                            setTimeout(function () { waitingDialog.hide(); }, 3000);
+                                            setTimeout(function () {
+                                                BootsAlert("success", "Success", res.message, "", "NotedivAlert", "");
+                                            }, 3000);
+                                            Click_Filter();
+                                        }
+                                        else {
+                                            $('.form-group').removeClass('has-error');
+                                            setTimeout(function () { waitingDialog.hide(); }, 3000);
+                                            setTimeout(function () {
+                                                BootsAlertSecondModal("success", "Success", res.message, "", "NotedivAlert", "", modalID);
+                                            }, 3000);
+                                            tableListNotes.ajax.reload();
+                                            Click_Filter();
+                                            
+                                        }
+                                    }
+                                    else {
+                                        waitingDialog.hide();
+                                        BootsAlert("danger", "Error", res.message, "", "NotedivAlert", "");
+                                        $(".btnSaveNote").prop("disabled", false);
+                                    }
+                                }
+                            });
+                        }
+                        else {
+
+                            setTimeout(function () { waitingDialog.hide(); }, 3000);
+                            setTimeout(function () {
+                                BootsAlert("danger", "Error", "Please fill out the Note field.", "", "NotedivAlert", "");
+                                $("#txtNote").parents('.form-group').addClass('has-error');
+                            }, 3000);
+                            $(".btnSaveNote").prop("disabled", false);
+                        }
+                    }, 1000);
+                });
+
+                //Buttons for Click Image Notes (View Notes List)
+                $('#tblMonitoring tbody').on('click', '.btnImage', function () {
+                    //$("#btnSave").prop("disabled", false);
+                    $('#btn_addNote').attr('serialno', $(this).attr('serialno'));
+                    $('.form-group').removeClass('has-error');
+                    $("#divNoteListAlert").html("<div id='forAlert'></div>");
+                    $("#AckModalListNotes").modal({
+                        modal: true, backdrop: 'static', keyboard: false
+                    });
+                    tableListNotes = $('#tblListNotes').DataTable({
+                        destroy: true,
+                        "iDisplayLength": false,
+                        "bAutoWidth": false,
+                        "bFilter": false,
+                        "bPaginate": false,
+                        "info": false,
+                        ajax: {
+                            url: "/Monit/SelectNoteList",
+                            dataSrc: '',
+                            data: { Serialno: $(this).attr('serialno') }
+                        },
+                        "columns": [
+                            { data: "noteDate", render: function (data) { if (moment(data).isValid()) return moment(data).format('DD/MM/YYYY hh:mm A'); else { return ""; } } },
+                            { data: "fullname" },
+                            { data: "NoteTypeIdDesc" },
+                            { data: "Note" }]
+                    });
+                    
+                   
+                });
+
+                //Button Add New Note
+                $('#btn_addNote').click(function () {                   
+                    noteSerial = $(this).attr('serialno');
+                    $('.btnSaveNote').removeAttr('disabled');
+                    $('.for-acknowledge').hide();
+                    $('.AddNote').text("Add Note");
+                    $('#btnSaveNoteAck').hide();
+                    $('#btnSaveNoteAdd').show();
+                    $('#txtNote').val("");
+                });
+
+            });
+
+            //Make 2nd on TOP
+            $(document).on('show.bs.modal', '.modal', function () {
+                var zIndex = 1040 + (10 * $('.modal:visible').length);
+                $(this).css('z-index', zIndex);
+                setTimeout(function () {
+                    $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+                }, 0);
+            });
+
+            //Filter Results
 			function Click_Filter() {
-				var val = [];
-				$(':checkbox:checked').each(function (i) {
+                var val = [];
+                var acknowVal = [];
+                $('.checkBoxClass:checkbox:checked').each(function (i) {
 					val[i] = $(this).val();
-				});
-				table.destroy();
-				GetData($('#str_site').attr('class'), $("#conveyors option:selected").text(), val.toString());
-			}
-			$(".checkBoxClass").click(function () {
-				Click_Filter();
-			});
-			$('select').on('change', function () {
-				Click_Filter();
-			});
+                });
+                //Acknow = ($("#chkAcknow").prop("checked")) == true ? "1" : "0";
+                table.destroy();
+                GetData($('#str_site').attr('class'), $("#conveyors option:selected").text(), val.toString(), Acknow);
+            }
 
+            $(function () {
+                function output(state, value) {
+                    Acknow = value;
+                    Click_Filter();
+                }
+                var $tristate = $('#chkAcknow').tristate({
+                    checked: "1",
+                    unchecked: "0",
+                    indeterminate: null,
+                    init: output,
+                    change: output
+                });
+            });
+
+
+            function checkValidInput() {
+                var ok = true;
+                var lacking = "";
+                if ($("#txtDeviceType").val() == "Pulley") {
+                    if ($('input[name="fixed"]:checked').val() == 3) {
+                        if ($("#txtSerial").val().replace(/\s/g, '') == "") {
+                            ok = false;
+                        }
+                    }
+                }
+                return ok;
+            }
+
+
+            //$("#chkAcknow").unbind();
+            $(".checkBoxClass").click(function () {
+                Click_Filter();
+			});
+            $('#conveyors').on('change', function () {
+                Click_Filter();
+            });
+            //Click Checkbox Acknowledgement
+            var checkboxID;
+            var noteSerial;
+            $('#tblMonitoring tbody').on('click', '.AckChange', function () {
+                $('#btnSaveNoteAck').show();
+                $('#btnSaveNoteAdd').hide();
+                $('.AddNote').text('Acknowledge Device Status Change');
+                $('.for-acknowledge').show();
+                $("#NotedivAlert").html("<div id='forAlert'></div>");
+                $(".btnSaveNote").prop("disabled", false);
+                $(".form-group").removeClass("has-error");
+                checkboxID = $(this).attr('id');
+                noteSerial = $(this).attr('serialno');
+                $("#txtNote").val("");
+                $("#txtNoteDeviceID").val($(this).attr('deviceid'));
+                $("#AckModal").modal({
+                    modal: true, backdrop: 'static', keyboard: false
+                });
+            });
+
+            $("#btnCancel,#btnCloseNote").click(function () {
+                $("#" + checkboxID).prop("checked", false);
+                $("#txtNote").val("");
+            });
+
+
+
+            
 
 		</script>
 <style>

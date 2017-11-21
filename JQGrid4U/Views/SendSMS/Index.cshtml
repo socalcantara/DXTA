@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Send SMS Alert";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -14,11 +13,11 @@
 <script src="~/Scripts/DatatableButton/Script/datatable.responsive.min.js"></script>
 <script src="~/Scripts/DatatableButton/Script/responsive.bootstrap.min.js"></script>
 
-<div class="container">
+<div class="container-fluid">
 	<fieldset style="margin-bottom:10px;">
 		<legend>
-			<b>Send SMS Alert</b>
-		</legend>
+            <h3><b>Send SMS Alert</b></h3>
+        </legend>
 		@using (Html.BeginForm())
 		{
 			@Html.ValidationSummary()
@@ -134,10 +133,11 @@
 				{ data: "Mobileno" },
 				{ data: "AutoEmailAlert" },
 				{ data: "Disabled" },
-			],
+            ],
+            "iDisplayLength": rowNo,
 			responsive: true,
 			bDestroy: true
-
+            
 		});
 	}
 	function lisfOfDevice() {
@@ -155,7 +155,8 @@
 				{ data: "deviceAmbientTemp" },
 				{ data: "deviceInternalTemp" },
 				{ data: "deviceStamp", render: function (data) { if (moment(data).isValid()) return moment(data).format('DD/MM/YYYY hh:mm A'); else { return ""; } } }
-			],
+            ],
+            "iDisplayLength": rowNo,
 			responsive: true,
 			bDestroy: true
 

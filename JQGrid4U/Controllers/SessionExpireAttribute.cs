@@ -4,12 +4,15 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using JQGrid4U.BL;
 
 namespace JQGrid4U.Controllers
 {
 	public class SessionExpireAttribute : ActionFilterAttribute
 	{
-		public override void OnActionExecuting(ActionExecutingContext filterContext)
+        UserBusinessLogic UserBL = new UserBusinessLogic();
+
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
 		{
 			HttpContext ctx = HttpContext.Current;
 			// check  sessions here
@@ -18,7 +21,11 @@ namespace JQGrid4U.Controllers
 				filterContext.Result = new RedirectResult("~/Account/Login");
 				return;
 			}
-			base.OnActionExecuting(filterContext);
+            else
+            {
+                HttpContext.Current.Session["rowfilter"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == HttpContext.Current.Session["user"].ToString()).iNumRows.ToString();
+            }
+            base.OnActionExecuting(filterContext);
 		}
 	}
 }

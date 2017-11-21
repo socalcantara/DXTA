@@ -8,19 +8,16 @@ using JQGrid4U.BL;
 
 namespace JQGrid4U.Controllers
 {
+    [SessionExpire]
     public class UserOptionController : Controller
     {
+        UserBusinessLogic UserBL = new UserBusinessLogic();
 
-    UserBusinessLogic UserBL = new UserBusinessLogic();
+        public ActionResult Index()
+        {
 
-    public ActionResult Index()
-    {
+            return Json(UserBL.Users.ToList(), JsonRequestBehavior.AllowGet);
 
-      return Json(UserBL.Users.ToList(), JsonRequestBehavior.AllowGet);
-
+        }
     }
-
-
-
-  }
 }

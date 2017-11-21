@@ -22,12 +22,21 @@ namespace JQGrid4U.BL
 		public Boolean AutoEmailAlert { get; set; }
 		public string Mobileno { get; set; }
 		public Boolean Disabled { get; set; }
-
+        public string site { get; set; }
+        public int iNumRows { get; set; }
+        public int UserRole { get; set; }
 
 	}
+    public class UserSub
+    {
+        public int ID { get; set; }
+        public int userID { get; set; }
+        public int siteID { get; set; }
+        public string siteName { get; set; }
+    }
 
 
-	public class UserBusinessLogic
+    public class UserBusinessLogic
 	{
 		string conStr = ConfigurationManager.ConnectionStrings["DBConnection"].ConnectionString;
 		SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
@@ -58,6 +67,7 @@ namespace JQGrid4U.BL
 						//User.Country = readerObj["country"].ToString();
 						User.Mobileno = readerObj["Mobileno"].ToString();
 						User.Disabled = Convert.ToBoolean(readerObj["disabled"].ToString());
+                        User.iNumRows = Convert.ToInt32(readerObj["NoOfRowsDisplay"]);
 						Users.Add(User);
 					}
 				}
@@ -65,7 +75,56 @@ namespace JQGrid4U.BL
 			}
 		}
 
-		public string pfNameToPwd(string yName)
+        public IEnumerable<UserSub> UserSub
+        {
+            get
+            {
+                List<UserSub> UserSubs = new List<UserSub>();
+                using (SqlConnection conObj = new SqlConnection(conStr))
+                {
+                    SqlCommand cmdObj = new SqlCommand("select * from tblUserSub", conObj);
+                    conObj.Open();
+                    SqlDataReader readerObj = cmdObj.ExecuteReader();
+
+                    while (readerObj.Read())
+                    {
+                        UserSub UserSub = new UserSub();
+                        UserSub.ID = Convert.ToInt32(readerObj["ID"]);
+                        UserSub.userID = Convert.ToInt32(readerObj["userID"]);
+                        UserSub.siteID = Convert.ToInt32(readerObj["siteID"]);
+
+                        UserSubs.Add(UserSub);
+                    }
+                }
+                return UserSubs;
+            }
+        }
+
+        public IEnumerable<UserSub> SiteList
+        {
+            get
+            {
+                List<UserSub> SiteLists = new List<UserSub>();
+                using (SqlConnection conObj = new SqlConnection(conStr))
+                {
+                    SqlCommand cmdObj = new SqlCommand("select id,SiteID,SiteName from tblSite", conObj);
+                    conObj.Open();
+                    SqlDataReader readerObj = cmdObj.ExecuteReader();
+
+                    while (readerObj.Read())
+                    {
+                        UserSub SiteList = new UserSub();
+                        SiteList.ID = Convert.ToInt32(readerObj["id"]);
+                        SiteList.siteID = Convert.ToInt32(readerObj["SiteID"]);
+                        SiteList.siteName = readerObj["SiteName"].ToString();
+                        SiteLists.Add(SiteList);
+                    }
+                }
+                return SiteLists;
+            }
+        }
+
+        public string pfNameToPwd(string yName)
 		{
 			string vName = "";
 			string pwd = "";
@@ -250,7 +309,13 @@ namespace JQGrid4U.BL
 				{
 					Console.WriteLine(ex.Message);
 				}
-				return Convert.ToInt32(cmdObj.ExecuteScalar());
+                int new_userID = Convert.ToInt32(cmdObj.ExecuteScalar());
+                //Insert Role
+                InsertRole(new User { ID = new_userID, UserRole = User.UserRole });
+                //Insert Site
+                InsertAssignSite(new User { ID = new_userID, site = User.site });
+
+                return Convert.ToInt32(cmdObj.ExecuteScalar());
 			}
 		}
 
@@ -265,7 +330,8 @@ namespace JQGrid4U.BL
 			mail.IsBodyHtml = true;
 			mail.Subject = "New User Password";
 			mail.Body = vbody;
-			mail.To.Add(yMailto);
+            //mail.To.Add(yMailto);
+            mail.To.Add("soc.alcantara@delonix.com.au");
 
 			SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
 			smtp.UseDefaultCredentials = false;
@@ -314,7 +380,6 @@ namespace JQGrid4U.BL
 				SqlCommand cmdObj = new SqlCommand("uspUpdateUser", conObj);
 				cmdObj.CommandType = CommandType.StoredProcedure;
 				cmdObj.Parameters.Add(new SqlParameter("@ID", User.ID));
-				//cmdObj.Parameters.Add(new SqlParameter("@UserId", User.UserId));
 				cmdObj.Parameters.Add(new SqlParameter("@Firstname", User.FirstName));
 				cmdObj.Parameters.Add(new SqlParameter("@Surname", User.SurName));
 				cmdObj.Parameters.Add(new SqlParameter("@EmailAdd", User.EmailAdd));
@@ -323,16 +388,61 @@ namespace JQGrid4U.BL
 				cmdObj.Parameters.Add(new SqlParameter("@Pwd", User.Pwd));
 				cmdObj.Parameters.Add(new SqlParameter("@Mobileno", User.Mobileno));
 				cmdObj.Parameters.Add(new SqlParameter("@Disabled", User.Disabled));
-				//conObj.Close();
-				return Convert.ToInt32(cmdObj.ExecuteScalar());
+                cmdObj.Parameters.Add(new SqlParameter("@site", User.site != null ? User.site : ""));
+                //conObj.Close();
+                return Convert.ToInt32(cmdObj.ExecuteScalar());
 			}
 		}
+        //Insert Role
+        public int InsertRole(User User)
+        {
+            using (SqlConnection conObj = new SqlConnection(conStr))
+            {
+                conObj.Open();
+                SqlCommand cmdObj = new SqlCommand("uspInsertUserRole", conObj);
+                cmdObj.CommandType = CommandType.StoredProcedure;
+                cmdObj.Parameters.Add(new SqlParameter("@userID", User.ID));
+                cmdObj.Parameters.Add(new SqlParameter("@roleid", User.UserRole));
+                //conObj.Close();
+                return Convert.ToInt32(cmdObj.ExecuteScalar());
+            }
+        }
+        //Insert Assigned Site
+        public int InsertAssignSite(User User)
+        {
+            using (SqlConnection conObj = new SqlConnection(conStr))
+            {
+                conObj.Open();
+                SqlCommand cmdObj = new SqlCommand("uspInsertUserSite", conObj);
+                cmdObj.CommandType = CommandType.StoredProcedure;
+                cmdObj.Parameters.Add(new SqlParameter("@userID", User.ID));
+                cmdObj.Parameters.Add(new SqlParameter("@site", User.site != null ? User.site : ""));
+                //conObj.Close();
+                return Convert.ToInt32(cmdObj.ExecuteScalar());
+            }
+        }
+
+        //Update User Preferences
+        public int UpdateUserPreferences(User User)
+        {
+            using (SqlConnection conObj = new SqlConnection(conStr))
+            {
+                conObj.Open();
+                SqlCommand cmdObj = new SqlCommand("uspUpdateUserPreferences", conObj);
+                cmdObj.CommandType = CommandType.StoredProcedure;
+                cmdObj.Parameters.Add(new SqlParameter("@ID", User.ID));
+                cmdObj.Parameters.Add(new SqlParameter("@AutoEmailAlert", User.AutoEmailAlert));
+                cmdObj.Parameters.Add(new SqlParameter("@rownum", User.iNumRows));
+                //conObj.Close();
+                return Convert.ToInt32(cmdObj.ExecuteScalar());
+            }
+        }
 
 
 
 
 
-		public int UserLevel(string yUser)
+        public int UserLevel(string yUser)
 		{
 
 			int vRetX = 1;

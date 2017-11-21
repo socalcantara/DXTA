@@ -1,0 +1,153 @@
+﻿
+@{
+    ViewBag.Title = "User Preferences";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/BootsAlert.js"></script>
+
+<fieldset>
+    <legend>User Preferences</legend>
+</fieldset>
+<div class="modal fade" id="UserModal" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    &times;
+                </button>
+                <h4 class="modal-title for-test-email">
+                    Send Email
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="divAlert">
+                </div>
+                @*<div class="form-horizontal">
+                    <div id="row">
+                        <div class="form-group for-test-email">
+                            <label class="control-label col-sm-3" for="txtSendingEmail">
+                                Sending...
+                            </label>
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+            <div class="modal-footer form-group">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="control-label col-lg-2 col-sm-3">
+                            <label class="pull-left">
+                                Auto Email Alert:
+                            </label>
+                        </div>
+                        <div class="col-lg-10 col-sm-9 ">
+                            <input id="txtAddAutoMail" type="checkbox" name="mailalert" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="control-label col-lg-2 col-sm-3">
+                            <label class="pull-left" for="txtMobileNo">
+                                No of Row:
+                            </label>
+                        </div>
+                        <div class="col-lg-10 col-sm-9">
+                            @*<input type="text" class="form-control" id="txtNorow" name="NoOfRows" title="No of Rows" style="width:250px;">*@
+                            <select class="form-control" id="txtNorow" title="No of Rows" style="width:250px;">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-12">
+                            <button type="button" id="btnSave" class="btn btn-primary">
+                                Save
+                            </button>
+                            <button type="button" class="btn btn-default">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        getUserDetails(UserID);
+        UpdateUserPreferences();
+    });
+    //Get Details
+    function getUserDetails(empid) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "UserManagement/GetUserDetails",
+            data: { empid: empid },
+            success: function (res) {
+                $("#txtNorow").val(res.iNumRows);
+                $("#txtAddAutoMail").prop("checked", res.AutoEmailAlert);
+                //localStorage.rowfilter = res.iNumRows
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.status);
+                alert(thrownError);
+            }
+        });
+    }
+    //Click Save User Preferences
+    function UpdateUserPreferences() {
+
+        $("#btnSave").click(function () {
+            //$("#btnEditUser").prop("disabled", true);
+  
+            var ID = UserID;
+            var numrow = $("#txtNorow").val();
+            var AutoEmailAlert = $("#txtAddAutoMail").is(":checked") ? "true" : "false";
+
+
+            var param = {
+                ID: ID,
+                iNumRows: numrow,
+                AutoEmailAlert: AutoEmailAlert
+            }
+            $("#UserModal").modal({
+                modal: true, backdrop: 'static', keyboard: false
+            });
+            $("#divAlert").html("<div id='forAlert'></div>");
+            $.ajax({
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                type: "POST",
+                url: baseUrl + "UserPreferences/UpdateUserPreferences",
+                data: JSON.stringify(param),
+                success: function (res) {
+                    
+                    if (res.isError != "T") {
+                        BootsAlert("success", "Success", res.message, "", "divAlert", "");
+                        getUserDetails(UserID);
+                    }
+                    else {
+                        BootsAlert("danger", "Error", res.message, "", "divAlert", "");
+                        $("#btnEditUser").prop("disabled", false);
+                    }
+                }
+            });
+        });
+    }
+    
+
+</script>
+

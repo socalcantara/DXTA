@@ -101,6 +101,8 @@ namespace JQGrid4U.Models
 
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
+
+        public int rownum { get; set; }
     }
 
     public class RegisterViewModel

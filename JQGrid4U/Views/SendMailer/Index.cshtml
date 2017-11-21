@@ -15,10 +15,10 @@
 <script src="~/Scripts/DatatableButton/Script/responsive.bootstrap.min.js"></script>
 
 
-<div class="container">
+<div class="container-fluid">
 	<fieldset style="margin-bottom:10px;">
 		<legend>
-			<b>Send Email</b>
+            <h3><b>Send Email</b></h3>
 		</legend>
 		@using (Html.BeginForm())
 		{
@@ -133,7 +133,8 @@
 				{ data: "Mobileno" },
 				{ data: "AutoEmailAlert" },
 				{ data: "Disabled" },
-			],
+            ],
+            "iDisplayLength": rowNo,
 			responsive: true,
 			bDestroy: true
 
@@ -153,10 +154,11 @@
 				{ data: "deviceAmbientTemp" },
 				{ data: "deviceInternalTemp" },
 				{ data: "deviceStamp", render: function (data) { if (moment(data).isValid()) return moment(data).format('DD/MM/YYYY hh:mm A'); else { return ""; } }}
-			],
+            ],
+            "iDisplayLength": rowNo,
 			responsive: true,
-			bDestroy: true
-
+            bDestroy: true,
+            
 		});
 	}
 

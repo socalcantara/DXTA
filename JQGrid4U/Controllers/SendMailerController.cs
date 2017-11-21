@@ -11,14 +11,15 @@ using System.Data.SqlClient;
 
 namespace JQGrid4U.Controllers
 {
-	public class SendMailerController : Controller
+    [SessionExpire]
+    public class SendMailerController : Controller
 	{
 
 
 
 		MailBusinessLogic MailBL = new MailBusinessLogic();
-
-		public ActionResult Index()
+        
+        public ActionResult Index()
 		{
 			return View();
 		}

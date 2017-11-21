@@ -1,21 +1,23 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using JQGrid4U.BL;
+using System.Text;
+using JQGrid4U.Models;
 
 namespace JQGrid4U.Controllers
 {
-
-
-	public class UserController : Controller
+    public class UserController : Controller
 	{
 		// GET: CutOff
 
 		UserBusinessLogic UserBL = new UserBusinessLogic();
-		//
-		// GET: /Supplier/
-		public ActionResult Index()
+        //
+        // GET: /Supplier/
+        [SessionExpire]
+        public ActionResult Index()
 		{
 
 
@@ -47,10 +49,6 @@ namespace JQGrid4U.Controllers
 
 			return Json(UserBL.Users.ToList(), JsonRequestBehavior.AllowGet);
 		}
-
-
-
-
 
 		public string InsertUser([Bind(Exclude = "ID")]User User)
 		{
@@ -96,7 +94,6 @@ namespace JQGrid4U.Controllers
 			return msg;
 		}
 
-
 		public string DeleteUser(int Id)
 		{
 			string msg;
@@ -113,9 +110,7 @@ namespace JQGrid4U.Controllers
 			return msg;
 		}
 
-
-
-	}
+    }
 
 
 }

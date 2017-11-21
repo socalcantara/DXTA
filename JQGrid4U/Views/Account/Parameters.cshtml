@@ -60,40 +60,40 @@
 <body>
 
 
+    <div class="container-fluid">
+        <fieldset>
+            <legend>
+                <b>Parameter</b>
+            </legend>
+        </fieldset>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div id="panelAlert">
+                    </div>
+                    <div class="panel-body">
 
-	<fieldset>
-		<legend>
-			<b>Parameter</b>
-		</legend>
-	</fieldset>
-		<div class="row">
-			<div class="col-lg-12">
-				<div class="panel panel-default">
-					<div id="panelAlert">
-					</div>
-					<div class="panel-body">
+                        @using (Html.BeginForm("Parameters", "Account", FormMethod.Post))
+                        {
 
-						@using (Html.BeginForm("Parameters", "Account", FormMethod.Post))
-						{
-
-							@Html.ValidationSummary()
-							<p> Temperature Critical Level</p>	<p style="width:150px;">@Html.TextBoxFor(m => m.TempCriticalLevel, new { Value = ViewBag.TempCriticalLevel, @class = "form-control" }) </p>
-							<p> Pulley Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => m.PulleyDeviceExpiry, new { Value = ViewBag.RollerDeviceExpiry, @class = "form-control" }) </p>
-							<p> Roller Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => m.RollerDeviceExpiry, new { Value = ViewBag.PulleyDeviceExpiry, @class = "form-control" }) </p>
-							<p> Email Alert Interval </p> <p style="width:150px;">@Html.TextBoxFor(m => m.EmailAlertInterval, new { Value = ViewBag.EmailAlertInterval, @class = "form-control" }) </p>
-							<p> Communication Port </p> <p style="width:150px;">@Html.TextBoxFor(m => m.ComPort, new { Value = ViewBag.ComPort, @class = "form-control" }) </p>
-
-
-							<button type="submit" class="btn btn-default">Update</button>
-
-						}
-					</div>
-				</div>
-			</div>
-		</div>
-
-	
+                            @Html.ValidationSummary()
+                            <p> Temperature Critical Level</p>	<p style="width:150px;">@Html.TextBoxFor(m => m.TempCriticalLevel, new { Value = ViewBag.TempCriticalLevel, @class = "form-control" }) </p>
+                            <p> Pulley Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => m.PulleyDeviceExpiry, new { Value = ViewBag.RollerDeviceExpiry, @class = "form-control" }) </p>
+                            <p> Roller Device Expiry </p><p style="width:150px;">@Html.TextBoxFor(m => m.RollerDeviceExpiry, new { Value = ViewBag.PulleyDeviceExpiry, @class = "form-control" }) </p>
+                            <p> Email Alert Interval </p> <p style="width:150px;">@Html.TextBoxFor(m => m.EmailAlertInterval, new { Value = ViewBag.EmailAlertInterval, @class = "form-control" }) </p>
+                            <p> Communication Port </p> <p style="width:150px;">@Html.TextBoxFor(m => m.ComPort, new { Value = ViewBag.ComPort, @class = "form-control" }) </p>
 
 
+                            <button type="submit" class="btn btn-default">Update</button>
+
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
 </body>
 </html>

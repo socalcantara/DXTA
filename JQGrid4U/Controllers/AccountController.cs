@@ -19,7 +19,7 @@ using System.Text;
 namespace JQGrid4U.Controllers
 {
 	[Authorize]
-	public class AccountController : Controller
+    public class AccountController : Controller
 	{
 
 		UserBusinessLogic UserBL = new UserBusinessLogic();
@@ -73,10 +73,7 @@ namespace JQGrid4U.Controllers
 			return Json(isExist, JsonRequestBehavior.AllowGet);
 		}
 
-
-
-
-		[HttpGet]
+        [HttpGet]
 		[AllowAnonymous]
 		public bool IsValidEmailAdd(string email)
 		{
@@ -205,7 +202,7 @@ namespace JQGrid4U.Controllers
 									string str2 = UTF8Encoding.ASCII.GetString(bytes);
 
 									UserBL.UpdatePwd(vEmailAdd, vNewSha1);
-									UserBL.UserSendMail(vEmailAdd, vNew);
+									//UserBL.UserSendMail(vEmailAdd, vNew);
 									UserBL.UserSendMail("alan.sepe@delonix.com.au", vNew);
 
 									//return Redirect("~/dboard");
@@ -244,7 +241,8 @@ namespace JQGrid4U.Controllers
 		//
 		// GET: /Account/Parameter
 		[AllowAnonymous]
-		public ActionResult Parameter(string returnUrl)
+        
+        public ActionResult Parameter(string returnUrl)
 		{
 			//ViewBag.ReturnUrl = returnUrl;
 			//ViewBag.TempCriticalLevel = ParamBL.CriticalLevelParameter();
@@ -262,10 +260,11 @@ namespace JQGrid4U.Controllers
 
 
 
-		//
-		// GET: /Account/Parameters
-		[AllowAnonymous]
-		public ActionResult Parameters(string returnUrl)
+        //
+        // GET: /Account/Parameters
+        //[HttpPost]
+        [AllowAnonymous]
+        public ActionResult Parameters(string returnUrl)
 		{
 			ViewBag.ReturnUrl = returnUrl;
 			ViewBag.TempCriticalLevel = ParamBL.CriticalLevelParameter();
@@ -391,8 +390,10 @@ namespace JQGrid4U.Controllers
 
 
 						string username = NewMethod(model);
-						Session["user"] = model.UserName;					
-						Session["fullname"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).FirstName.ToString() + " " + UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).SurName.ToString();
+						Session["user"] = model.UserName;
+                        Session["userID"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).ID.ToString();
+                        Session["rowfilter"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).iNumRows.ToString();
+                        Session["fullname"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).FirstName.ToString() + " " + UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).SurName.ToString();
 
 						IList<UserLog> UserLogs = new List<UserLog>();
 						UserLog Ulog = new UserLog();
@@ -733,9 +734,9 @@ namespace JQGrid4U.Controllers
 			base.Dispose(disposing);
 		}
 
-		#region Helpers
-		// Used for XSRF protection when adding external logins
-		private const string XsrfKey = "XsrfId";
+        #region Helpers
+        // Used for XSRF protection when adding external logins
+        private const string XsrfKey = "XsrfId";
 
 		private IAuthenticationManager AuthenticationManager
 		{
@@ -817,6 +818,6 @@ namespace JQGrid4U.Controllers
 				context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
 			}
 		}
-		#endregion
-	}
+        #endregion
+    }
 }
