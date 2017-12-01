@@ -191,7 +191,7 @@ namespace JQGrid4U.BL
         }
 
 
-                public int UpdateMenu(MenuHdr menu)
+        public int UpdateMenu(MenuHdr menu)
         {
             using (SqlConnection conObj = new SqlConnection(conStr))
             {

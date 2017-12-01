@@ -260,6 +260,7 @@
             success: function (res) {
                 if (res.isError != "T") {
                     $("#panelAlert").html("<div class='alert alert-success'><strong>Success: </strong>Data has been added successfully saved.</div>");
+                    setTimeout(function () { $("#panelAlert").hide(); }, 2000);
                     //table.destroy();
                     //GetRolesData();
                 }

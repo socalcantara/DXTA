@@ -1214,7 +1214,6 @@
     <Content Include="Scripts\Jtree\dist\themes\proton\fonts\titillium\titilliumweb-extralight-webfont.svg" />
     <Content Include="Scripts\Jtree\dist\themes\proton\fonts\titillium\titilliumweb-regular-webfont %281%29.svg" />
     <Content Include="Scripts\Jtree\dist\themes\proton\fonts\titillium\titilliumweb-regular-webfont.svg" />
-    <Content Include="Scripts\Jtree\dist\themes\proton\style %281%29.css" />
     <Content Include="Scripts\Jtree\dist\themes\proton\style.css" />
     <Content Include="Scripts\Jtree\dist\themes\proton\style.min.css" />
     <Content Include="Scripts\Jtree\dist\themes\proton\throbber.gif" />
