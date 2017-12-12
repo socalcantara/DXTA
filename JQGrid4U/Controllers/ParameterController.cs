@@ -10,12 +10,28 @@ namespace JQGrid4U.Controllers
 	{
 
 		ParameterBusinessLogic ParameterBL = new ParameterBusinessLogic();
+        UserBusinessLogic UserBL = new UserBusinessLogic();
 
-		// GET: Parameter
-		public ActionResult Index()
+        // GET: Parameter
+        public ActionResult Index()
 		{
-			return View();
-		}
+            if (Session["user"] == null)
+            {
+                return Redirect("~/Account/Login");
+            }
+            else
+            {
+                int xlevel = 1;
+                xlevel = UserBL.UserLevel(Session["user"].ToString());
+
+                if (xlevel < 5)
+                {
+                    return Redirect("~/Account/Unauthor");
+                }
+
+                return View();
+            }
+        }
 
 
 		public JsonResult SelectParameter()

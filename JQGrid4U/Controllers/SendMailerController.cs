@@ -18,11 +18,27 @@ namespace JQGrid4U.Controllers
 
 
 		MailBusinessLogic MailBL = new MailBusinessLogic();
-        
+        UserBusinessLogic UserBL = new UserBusinessLogic();
+
         public ActionResult Index()
 		{
-			return View();
-		}
+            if (Session["user"] == null)
+            {
+                return Redirect("~/Account/Login");
+            }
+            else
+            {
+                int xlevel = 1;
+                xlevel = UserBL.UserLevel(Session["user"].ToString());
+
+                if (xlevel < 5)
+                {
+                    return Redirect("~/Account/Unauthor");
+                }
+
+                return View();
+            }
+        }
 
 		public ActionResult Thankyou()
 		{

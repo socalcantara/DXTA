@@ -25,6 +25,7 @@ namespace JQGrid4U.BL
     {
         public int UserID { get; set; }
         public int RoleID { get; set; }
+        public string RoleName { get; set; }
     }
     public class MenuHdr
     {
@@ -145,7 +146,7 @@ namespace JQGrid4U.BL
                 using (SqlConnection conObj = new SqlConnection(conStr))
                 {
                     string qry;
-                    qry = "select UserID,RoleID from tblUserAccess";
+                    qry = "select UserID,RoleID,RoleName from tblUserAccess a left join tblUserRole b on a.RoleID = b.ID";
 
                     SqlCommand cmdObj = new SqlCommand(qry, conObj);
                     conObj.Open();
@@ -156,6 +157,7 @@ namespace JQGrid4U.BL
                         UserRoleAccess MenuAccess = new UserRoleAccess();
                         MenuAccess.RoleID = Convert.ToInt32(readerObj["RoleID"].ToString());
                         MenuAccess.UserID = Convert.ToInt32(readerObj["UserID"].ToString());
+                        MenuAccess.RoleName = readerObj["RoleName"].ToString();
                         UserRoleMenuAccess.Add(MenuAccess);
                     }
                     conObj.Close();

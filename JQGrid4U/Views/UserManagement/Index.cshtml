@@ -170,7 +170,7 @@
 										Auto Email Alert:
 									</label>
 									<div class="col-sm-9">
-										<input id="txtAddAutoMail" type="checkbox" name="mailalert" class="form-control">
+										<input id="txtAddAutoMail" type="checkbox" name="mailalert" class="form-control" />
 									</div>
 								</div>
 								<div class="form-group for-both">
@@ -178,7 +178,7 @@
 										Disabled:
 									</label>
 									<div class="col-sm-9">
-										<input id="SelStatus" type="checkbox" name="mailalert" class="form-control">
+										<input id="SelStatus" type="checkbox" name="mailalert" class="form-control" />
 									</div>
 								</div>
 							</div>
@@ -367,7 +367,7 @@
 			});
 
 			//Button Test Email Click
-			$('#listOfUsers tbody').on('click', '.testemail', function () {
+            $('#listOfUsers tbody').on('click', '.testemail', function () {
 				var emailAdd = $(this).attr('email');
 				$("#UserModal").modal({
 					modal: true, backdrop: 'static', keyboard: false

@@ -33,7 +33,14 @@ namespace JQGrid4U.Controllers
 		public JsonResult SelectDashBoard(int UserID = 0)
 		{
             List<int> listofSites = new List<int>();
-            listofSites.AddRange(Users.UserSub.Where(x => x.userID == UserID).Select(x => x.siteID).ToList());
+            if ((Session["isAdmin"].ToString()) == "True")
+            {
+                listofSites.AddRange(Users.UserSub.Select(x => x.siteID).ToList());
+            }
+            else
+            {
+                listofSites.AddRange(Users.UserSub.Where(x => x.userID == UserID).Select(x => x.siteID).ToList());
+            }
 			return Json(DashBoardBL.DashBoards.Where(x => listofSites.Contains(x.siteID)).ToList(), JsonRequestBehavior.AllowGet);
 		}
 

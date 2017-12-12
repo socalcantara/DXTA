@@ -272,7 +272,24 @@ namespace JQGrid4U.Controllers
 			ViewBag.RollerDeviceExpiry = ParamBL.RollerExpiry();
 			ViewBag.EmailAlertInterval = 3;
 			ViewBag.ComPort = ParamBL.ComPort();
-			return View();
+            //For Authorization
+            if (Session["user"] == null)
+            {
+                return Redirect("~/Account/Login");
+            }
+            else
+            {
+                int xlevel = 1;
+                xlevel = UserBL.UserLevel(Session["user"].ToString());
+
+                if (xlevel < 5)
+                {
+                    return Redirect("~/Account/Unauthor");
+                }
+
+                return View();
+            }
+            //return View();
 		}
 
 		//
@@ -353,7 +370,9 @@ namespace JQGrid4U.Controllers
 			string vIPadd = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList.GetValue(0).ToString();
 			string xurl;
 			UserBusinessLogic UserBL = new UserBusinessLogic();
-			if (ModelState.IsValid)
+            RoleManagement userRole = new RoleManagement();
+
+            if (ModelState.IsValid)
 			{
 				string pwdX = Crypto.SHA1(model.Password);
 				Boolean IsValid = UserBL.isValidUser(model.UserName, pwdX);
@@ -390,12 +409,14 @@ namespace JQGrid4U.Controllers
 
 
 						string username = NewMethod(model);
-						Session["user"] = model.UserName;
+                        int userid = Convert.ToInt32(UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).ID.ToString());
+                        Session["user"] = model.UserName;
                         Session["userID"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).ID.ToString();
                         Session["rowfilter"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).iNumRows.ToString();
                         Session["fullname"] = UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).FirstName.ToString() + " " + UserBL.Users.SingleOrDefault(x => x.EmailAdd == username).SurName.ToString();
+                        Session["isAdmin"] = userRole.UserRoleAccess.Any(x => x.UserID == userid) ? "True" : "False";
 
-						IList<UserLog> UserLogs = new List<UserLog>();
+                        IList<UserLog> UserLogs = new List<UserLog>();
 						UserLog Ulog = new UserLog();
 						Ulog.EmailAdd = model.UserName;
 						Ulog.LogDate = DateTime.Now;

@@ -141,9 +141,11 @@ namespace JQGrid4U.Controllers
 				mail.IsBodyHtml = true;
 				mail.Subject = "Test Email";
 				mail.Body = "This is a test to check if your email address is valid. Thanks.";
-				mail.To.Add(MailTo);
+                //temporary send email to soc
+                //mail.To.Add(MailTo);
+                mail.To.Add("soc.alcantara@delonix.com.au");
 
-				SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
 				smtp.UseDefaultCredentials = false;
 
 				smtp.Credentials = new System.Net.NetworkCredential("haroldtoralba@gmail.com", "sepealan123");

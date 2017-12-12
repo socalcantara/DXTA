@@ -13,10 +13,26 @@ namespace JQGrid4U.Controllers
     {
         // GET: MenuManagement
         RoleManagement RoleManagementTables = new RoleManagement();
+        UserBusinessLogic UserBL = new UserBusinessLogic();
 
         public ActionResult Index()
         {
-            return View();
+            if (Session["user"] == null)
+            {
+                return Redirect("~/Account/Login");
+            }
+            else
+            {
+                int xlevel = 1;
+                xlevel = UserBL.UserLevel(Session["user"].ToString());
+
+                if (xlevel < 5)
+                {
+                    return Redirect("~/Account/Unauthor");
+                }
+
+                return View();
+            }
         }
 
 

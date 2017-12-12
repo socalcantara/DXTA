@@ -20,24 +20,39 @@ namespace JQGrid4U.Controllers
 		//SMSBusinessLogic SmsBL = new SMSBusinessLogic();
 		MailBusinessLogic MailBL = new MailBusinessLogic();
 		ParameterBusinessLogic ParamBL = new ParameterBusinessLogic();
-
+        UserBusinessLogic UserBL = new UserBusinessLogic();
 
 
 
         [SessionExpire]
         public ActionResult Index()
 		{
+            if (Session["user"] == null)
+            {
+                return Redirect("~/Account/Login");
+            }
+            else
+            {
+                int xlevel = 1;
+                xlevel = UserBL.UserLevel(Session["user"].ToString());
+
+                if (xlevel < 5)
+                {
+                    return Redirect("~/Account/Unauthor");
+                }
+
+                return View();
+            }
 
 
-
-			if (Session["user"] == null)
-			{
-				return Redirect("~/Account/Login");
-			}
-			else
-			{
-				return View();
-			}
+   //         if (Session["user"] == null)
+			//{
+			//	return Redirect("~/Account/Login");
+			//}
+			//else
+			//{
+			//	return View();
+			//}
 		}
 
 		public ActionResult Thankyou()
