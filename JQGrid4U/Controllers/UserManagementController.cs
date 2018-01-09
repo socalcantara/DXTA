@@ -222,7 +222,7 @@ namespace JQGrid4U.Controllers
             return Json(sb.ToString());
 
         }
-
+        //GET All Role List
         public JsonResult GetUserRoleList(int empid = 0)
         {
             StringBuilder sb = new StringBuilder();
